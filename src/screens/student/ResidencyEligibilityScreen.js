@@ -1,0 +1,230 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+const { width } = Dimensions.get('window');
+
+const Tag = ({ label }) => (
+  <TouchableOpacity style={styles.tag}>
+    <Text style={styles.tagText}>{label}</Text>
+  </TouchableOpacity>
+);
+
+const Section = ({ title, children }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {children}
+  </View>
+);
+
+const ResidencyEligibilityScreen = ({ navigation, showHeader = true,
+  showContinueButton = true,
+  startFrom,
+  customButtonLabel = 'Update & Save',
+  onSave, }) => {
+  return (
+    <View style={styles.container}>
+      {showHeader && (
+      <LinearGradient colors={['#01D7FB', '#0257A7']} style={styles.headerGradient}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back-circle-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Residency and Eligibility</Text>
+          <Text style={styles.headerProgress}>71% Completed</Text>
+        </View>
+      </LinearGradient>
+      )}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {startFrom !== 'residency' && (
+          <>
+        <Text style={styles.headerDescription}>
+          Your location data is private and used only for matching regional opportunities!
+        </Text>
+        <Text style={styles.headerLabel}>
+          You can skip any question and update it later in settings
+        </Text>
+        </>
+        )}
+
+        {/* ZIP Code */}
+        <Section title="ZIP Code">
+          <TextInput
+            placeholder="Enter ZIP code"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+          />
+        </Section>
+
+        {/* State of Residence */}
+        <Section title="State of Residence">
+          <View style={styles.inputWrapper}>
+            <TextInput
+              placeholder="Select your state"
+              placeholderTextColor="#aaa"
+              style={styles.inputWithIcon}
+            />
+            <Icon name="chevron-down-circle-outline" size={20} color="#fff" style={styles.rightIcon} />
+          </View>
+          <Icon
+                                name="alert-circle-outline"
+                                size={20}
+                                color="#fff"
+                                style={styles.exclamationIcon}
+                              />
+        </Section>
+
+        {/* Out-of-state Opportunities */}
+        <Section title="Are you open to out-of-state opportunities?">
+          <View style={styles.tagGroup}>
+            <Tag label="Yes" />
+            <Tag label="No" />
+          </View>
+        </Section>
+
+        {/* Relocation */}
+        <Section title="Are you willing to relocate for scholarships or academic programs?">
+          <View style={styles.tagGroup}>
+            <Tag label="Yes" />
+            <Tag label="No" />
+          </View>
+        </Section>
+
+        {/* Visa / Residency Restrictions */}
+        <Section title="Visa / Residency Restrictions">
+          <TextInput
+            placeholder="Enter details if any"
+            placeholderTextColor="#aaa"
+            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
+            multiline
+          />
+        </Section>
+
+        {showContinueButton ? (
+          <>
+        <TouchableOpacity
+          style={styles.continueBtn}
+          onPress={() => navigation.navigate('QuickApply')}
+        >
+          <Text style={styles.continueText}>Continue</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity>
+          <Text style={styles.saveLaterText}>Save and continue Later</Text>
+        </TouchableOpacity>
+        </>
+        ) : (
+                  onSave && (
+                    <TouchableOpacity style={styles.continueBtn} onPress={onSave}>
+                      <Text style={styles.continueText}>{customButtonLabel}</Text>
+                    </TouchableOpacity>
+                  )
+                )}
+      </ScrollView>
+    </View>
+  );
+};
+
+export default ResidencyEligibilityScreen;
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#000' },
+  headerGradient: { width, marginTop: 10 },
+  header: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+  },
+  headerTitle: { color: '#fff', fontSize: 16, fontWeight: '500', marginRight: 60 },
+  headerProgress: { color: '#fff', fontSize: 13 },
+  scrollContainer: { paddingBottom: 30, paddingHorizontal: 10 },
+  headerDescription: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 15,
+  },
+  headerLabel: { color: '#8E8E8E', fontSize: 13, marginBottom: 15 },
+  section: {
+    backgroundColor: '#021E38',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 15,
+  },
+    exclamationIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  sectionTitle: { color: '#fff', fontSize: 16, fontWeight: '500', marginBottom: 8 },
+  tagGroup: { flexDirection: 'row', flexWrap: 'wrap',justifyContent:'space-between' },
+  tag: {
+    backgroundColor: '#0257A7',
+    borderColor: '#03A2D5',
+    borderWidth: 1,
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 55,
+    margin: 5,
+    elevation: 8,
+  },
+  tagText: { color: '#fff', fontSize: 14, fontWeight: '500' },
+  input: {
+    backgroundColor: '#021E38',
+    color: '#fff',
+    borderColor: '#03A2D5',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 15,
+    fontSize: 14,
+    marginVertical: 8,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#021E38',
+    borderColor: '#03A2D5',
+    borderWidth: 1,
+    borderRadius: 40,
+    paddingHorizontal: 10,
+    marginVertical: 8,
+  },
+  inputWithIcon: {
+    flex: 1,
+    height: 50,
+    color: '#fff',
+    fontSize: 14,
+    paddingHorizontal: 10,
+  },
+  rightIcon: { position: 'absolute', right: 15 },
+  continueBtn: {
+    borderColor: '#03A2D5',
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginTop: 15,
+    marginBottom: 20,
+    marginHorizontal: 25,
+    elevation: 8,
+  },
+  continueText: { color: '#03A2D5', fontSize: 24, fontWeight: '600' },
+  saveLaterText: {
+    color: '#717171',
+    textAlign: 'center',
+    fontSize: 16,
+    textDecorationLine: 'underline',
+  },
+});
