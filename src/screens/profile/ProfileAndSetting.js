@@ -10,126 +10,139 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const [isLightMode, setIsLightMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}
-    >
-        <View style={styles.Profile}>
-            <Text style={styles.ProfileText}>Profile</Text>
-        </View>
-      {/* HEADER SECTION */}
-      <View style={styles.headerCard}>
-        <View style={styles.row}>
-          <Image
-            source={{ uri: "https://i.pravatar.cc/150?img=3" }}
-            style={styles.profileImage}
-          />
+    <View style={styles.container}>
+      {/* Fixed Header (Non-scrollable) */}
+      <View style={styles.ProfileHeader}>
+        <Text style={styles.ProfileText}>Profile</Text>
+      </View>
 
-          <View style={styles.headerInfo}>
-            <Text style={styles.userName}>Aroma Tariq</Text>
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>Level 3 Learner</Text>
+      {/* Scrollable Content */}
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* HEADER SECTION */}
+        <View style={styles.headerCard}>
+          <View style={styles.row}>
+            <Image
+              source={{ uri: "https://i.pravatar.cc/150?img=3" }}
+              style={styles.profileImage}
+            />
+
+            <View style={styles.headerInfo}>
+              <Text style={styles.userName}>Aroma Tariq</Text>
+              <View style={styles.levelBadge}>
+                <Text style={styles.levelText}>Level 3 Learner</Text>
+              </View>
             </View>
+          </View>
+
+          {/* STATS */}
+          <View style={styles.statsGrid}>
+            {statsData.map((item, index) => (
+              <TouchableOpacity key={index} style={styles.statCard}>
+                <View style={styles.statContent}>
+                  <View style={styles.statRow}>
+                    <Icon name={item.icon} size={20} color="#fff" />
+                    <Text style={styles.statValue}>{item.value}</Text>
+                  </View>
+                  <Text style={styles.statLabel}>{item.label}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* HEADER BUTTONS */}
+          <View style={styles.profileButtons}>
+            <TouchableOpacity
+              style={styles.primaryBtn}
+              onPress={() => navigation.navigate("UpdateProfile")}
+            >
+              <Text style={styles.primaryBtnText}>Update Profile</Text>
+              <Icon name="arrow-forward" size={16} color="#fff" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.secondaryBtn}
+              onPress={() => navigation.navigate("BadgesnAchievements")}
+            >
+              <Text style={styles.secondaryBtnText}>View Badges</Text>
+              <Icon name="arrow-forward" size={16} color="#00C6FB" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* STATS */}
-        <View style={styles.statsGrid}>
-          {statsData.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.statCard}>
-              <View style={styles.statContent}>
-                <View style={styles.statRow}>
-                  <Icon name={item.icon} size={20} color="#fff" />
-                  <Text style={styles.statValue}>{item.value}</Text>
+        {/* ANALYTICS OVERVIEW */}
+        <Text style={styles.sectionTitle}>Analytics Overview</Text>
+        <View style={styles.analyticsCard}>
+          <View style={styles.statsGrid}>
+            {analyticsData.map((item, index) => (
+              <View key={index} style={styles.statCard}>
+                <View style={styles.statContent}>
+                  <View style={styles.statRow}>
+                    <Icon name={item.icon} size={20} color="#fff" />
+                    <Text style={styles.statValue}>{item.value}</Text>
+                  </View>
+                  <Text style={styles.statLabel}>{item.label}</Text>
                 </View>
-                <Text style={styles.statLabel}>{item.label}</Text>
               </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+            ))}
+          </View>
 
-        {/* HEADER BUTTONS */}
-        <View style={styles.profileButtons}>
-          <TouchableOpacity style={styles.primaryBtn}
-          onPress={() => navigation.navigate('UpdateProfile')}>
-            <Text style={styles.primaryBtnText}>Update Profile</Text>
+          <TouchableOpacity style={styles.primaryBtnFull}
+            onPress={() => navigation.navigate("ProfileAnalytics")}>
+            <Text style={styles.primaryBtnText}>View Full Analytics</Text>
             <Icon name="arrow-forward" size={16} color="#fff" />
           </TouchableOpacity>
+        </View>
 
-          <TouchableOpacity style={styles.secondaryBtn}>
-            <Text style={styles.secondaryBtnText}>View Badges</Text>
+        {/* DOCUMENT & PROFILE */}
+        <Text style={styles.sectionTitle}>Document & Profile</Text>
+        <View style={styles.listCard}>
+          {documentItems.map((item, index) => (
+            <RowItem key={index} title={item.title} icon={item.icon} />
+          ))}
+          <TouchableOpacity style={styles.primaryBtnFullOutline}>
+            <Text style={styles.secondaryBtnText}>Complete Your Profile</Text>
             <Icon name="arrow-forward" size={16} color="#00C6FB" />
           </TouchableOpacity>
         </View>
-      </View>
 
-      {/* ANALYTICS OVERVIEW */}
-      <Text style={styles.sectionTitle}>Analytics Overview</Text>
-      <View style={styles.analyticsCard}>
-        <View style={styles.statsGrid}>
-          {analyticsData.map((item, index) => (
-            <View key={index} style={styles.statCard}>
-              <View style={styles.statContent}>
-                <View style={styles.statRow}>
-                  <Icon name={item.icon} size={20} color="#fff" />
-                  <Text style={styles.statValue}>{item.value}</Text>
-                </View>
-                <Text style={styles.statLabel}>{item.label}</Text>
-              </View>
-            </View>
-          ))}
+        {/* SETTINGS & SUPPORT */}
+        <Text style={styles.sectionTitle}>Settings & Support</Text>
+
+        <View style={styles.listCard}>
+          <ToggleRow
+            title="Notifications"
+            icon="notifications-outline"
+            value={notificationsEnabled}
+            onValueChange={() =>
+              setNotificationsEnabled(!notificationsEnabled)
+            }
+          />
+          <ToggleRow
+            title="Light Mode"
+            icon="sunny-outline"
+            value={isLightMode}
+            onValueChange={() => setIsLightMode(!isLightMode)}
+          />
         </View>
 
-        <TouchableOpacity style={styles.primaryBtnFull}>
-          <Text style={styles.primaryBtnText}>View Full Analytics</Text>
-          <Icon name="arrow-forward" size={16} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      {/* DOCUMENT & PROFILE */}
-      <Text style={styles.sectionTitle}>Document & Profile</Text>
-      <View style={styles.listCard}>
-        {documentItems.map((item, index) => (
-          <RowItem key={index} title={item.title} icon={item.icon} />
+        {chunkArray(settingsItems, 4).map((group, i) => (
+          <View key={i} style={styles.listCard}>
+            {group.map((item, index) => (
+              <RowItem key={index} title={item.title} icon={item.icon} />
+            ))}
+          </View>
         ))}
-        <TouchableOpacity style={styles.primaryBtnFullOutline}>
-          <Text style={styles.secondaryBtnText}>Complete Your Profile</Text>
-          <Icon name="arrow-forward" size={16} color="#00C6FB" />
-        </TouchableOpacity>
-      </View>
-
-      {/* SETTINGS & SUPPORT */}
-      <Text style={styles.sectionTitle}>Settings & Support</Text>
-
-      {/* Grouped sections exactly like reference: 2 toggle rows in first card, then 4 & 4 items */}
-      <View style={styles.listCard}>
-        <ToggleRow
-          title="Notifications"
-          icon="notifications-outline"
-          value={notificationsEnabled}
-          onValueChange={() => setNotificationsEnabled(!notificationsEnabled)}
-        />
-        <ToggleRow
-          title="Light Mode"
-          icon="sunny-outline"
-          value={isLightMode}
-          onValueChange={() => setIsLightMode(!isLightMode)}
-        />
-      </View>
-
-      {chunkArray(settingsItems, 4).map((group, i) => (
-        <View key={i} style={styles.listCard}>
-          {group.map((item, index) => (
-            <RowItem key={index} title={item.title} icon={item.icon} />
-          ))}
-        </View>
-      ))}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -201,11 +214,21 @@ const settingsItems = [
 /* STYLES */
 const styles = StyleSheet.create({
   container: { backgroundColor: "#000", flex: 1 },
-    Profile: { paddingLeft:16},
-    ProfileText: {
-        color: "#fff",
-        fontSize: 28,
-        fontWeight: "700",},
+
+  ProfileHeader: {
+    paddingTop: 30,
+    paddingBottom: 10,
+    paddingLeft: 16,
+    backgroundColor: "#000",
+  },
+  ProfileText: {
+    color: "#fff",
+    fontSize: 28,
+    fontWeight: "700",
+  },
+
+  scrollContainer: { flex: 1 },
+
   headerCard: {
     borderRadius: 14,
     padding: 16,
@@ -304,6 +327,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 8,
   },
+  primaryBtnText: { color: "#fff", fontWeight: "700" },
 
   primaryBtnFullOutline: {
     borderColor: "#00C6FB",
@@ -318,8 +342,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 10,
   },
-
-  primaryBtnText: { color: "#fff", fontWeight: "700" },
 
   secondaryBtn: {
     borderColor: "#00C6FB",

@@ -29,10 +29,10 @@ const Section = ({ title, children }) => (
 const FinancialInformationScreen = ({
   navigation,
   showHeader = true,
-  showContinueButton = true,
   startFrom,
-  customButtonLabel = 'Update & Save',
+  showContinueButton = true,
   onSave,
+  customButtonLabel = 'Custom Action',
 }) => {
   return (
     <View style={styles.container}>
@@ -143,12 +143,25 @@ const FinancialInformationScreen = ({
             </TouchableOpacity>
           </>
         ) : (
-          onSave && (
-            <TouchableOpacity style={styles.continueBtn} onPress={onSave}>
-              <Text style={styles.continueText}>{customButtonLabel}</Text>
-            </TouchableOpacity>
-          )
-        )}
+          <>
+    {onSave && (
+      <TouchableOpacity style={styles.continueBtn} onPress={onSave}>
+        <Text style={styles.continueText}>{customButtonLabel}</Text>
+      </TouchableOpacity>
+    )}
+
+    {customButtonLabel === 'Update & Save' && (
+      <TouchableOpacity
+        style={[styles.primaryBtnFull]}
+        onPress={() => navigation.navigate('ManageDocument')}
+      >
+        <Text style={styles.primaryBtnText}>
+          Manage Document
+        </Text>
+      </TouchableOpacity>
+    )}
+  </>
+)}
       </ScrollView>
     </View>
   );
@@ -227,7 +240,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     alignItems: 'center',
     marginTop: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     marginHorizontal: 25,
     elevation: 8,
   },
@@ -272,4 +285,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textDecorationLine: 'underline',
   },
+   primaryBtnFull: {
+    backgroundColor: "#00C6FB",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    paddingVertical: 13,
+    borderRadius: 10,
+    width:'85%'
+},
+primaryBtnText: { color: "#fff",fontSize: 24,
+    fontWeight: '600', },
 });

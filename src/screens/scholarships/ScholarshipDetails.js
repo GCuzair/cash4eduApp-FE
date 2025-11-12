@@ -4,6 +4,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'; // Added for specific benefits icons
 import { useNavigation } from '@react-navigation/native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome'
+import LinearGradient from 'react-native-linear-gradient';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
+import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 // --- COLORS ---
 const DARK_BACKGROUND = '#121212';
@@ -11,8 +15,8 @@ const CARD_BACKGROUND = '#0D2B4B'; // Dark blue background for sections/cards
 const PRIMARY_BLUE = '#69E8FF'; // Light blue for amount/tags
 const LIGHT_TEXT = '#FFFFFF';
 const GRAY_TEXT = '#AAAAAA';
-const MATCHED_GREEN = '#4CAF50';
-const FEATURED_YELLOW = '#FFC107';
+const MATCHED_GREEN = '#12db00';
+const FEATURED_YELLOW = '#FFC947';
 const BLUE_HIGHLIGHT = '#03A2D5'; // Used for links and bold criteria titles
 const ICON_CIRCLE_BACKGROUND = '#4A81BB'; // Background for the benefit icons
 const NUMBER_CIRCLE_COLOR = '#007AFF'; // Bright blue for the number circles in How to Apply
@@ -106,7 +110,6 @@ const ScholarshipDetails = ({ navigation }) => {
         </View>
     );
 
-
     return (
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: DARK_BACKGROUND }}>
             <View style={styles.container}>
@@ -128,7 +131,7 @@ const ScholarshipDetails = ({ navigation }) => {
                 {/* Scholarship Card (Main Info) */}
                 <View style={styles.scholarshipCard}>
                     <View style={styles.cardHeader}>
-                        <Icon name="heart" size={24} color={'#ff5050'} />
+                        <Icon name="heart" size={24} color={'#ef4444'} />
 
                         <View style={styles.badgeGroup}>
                             <View style={styles.matchedBadge}>
@@ -159,9 +162,9 @@ const ScholarshipDetails = ({ navigation }) => {
                         {scholarship.tags.map((tag, index) => (
                             <View key={index} style={styles.infoTag}>
                                 {/* Icons adjusted to look like the image */}
-                                {index === 0 && <Icon name="school-outline" size={14} color={PRIMARY_BLUE} style={{ marginRight: 5 }} />}
-                                {index === 1 && <Icon name="people-outline" size={14} color={PRIMARY_BLUE} style={{ marginRight: 5 }} />}
-                                {index === 2 && <Icon name="cash-outline" size={14} color={PRIMARY_BLUE} style={{ marginRight: 5 }} />}
+                                {index === 0 && <Icon name="school-outline" size={14} color='white' style={{ marginRight: 5 }} />}
+                                {index === 1 && <Icon name="people-outline" size={14} color='white' style={{ marginRight: 5 }} />}
+                                {index === 2 && <Icon name="cash-outline" size={14} color='white' style={{ marginRight: 5 }} />}
                                 <Text style={styles.infoTagText}>{tag}</Text>
                             </View>
                         ))}
@@ -195,21 +198,20 @@ const ScholarshipDetails = ({ navigation }) => {
                 <View>
                     <View style={styles.appCont}>
                         <View>
-                            <TouchableOpacity style={{ marginTop: 10 }}>
-                                <Icon name="file-text" size={30} color={LIGHT_TEXT} />
+                            <TouchableOpacity style={styles.iconCont}>
+                                <FontAwesome name="file-text-o" size={20} color='#51e3fc' />
                             </TouchableOpacity>
                         </View>
                         <View>
                             <Text style={styles.ApplicationTitle}>Essay</Text>
                             <Text style={{ color: 'white' }}>1 short essay (max 500 words)</Text>
-
                         </View>
                     </View>
 
                     <View style={styles.appCont}>
                         <View>
-                            <TouchableOpacity style={{ marginTop: 10 }}>
-                                <Icon name="file-text" size={30} color={LIGHT_TEXT} />
+                            <TouchableOpacity style={styles.iconCont}>
+                                <Icon name="document-lock-sharp" size={20} color='#51e3fc' />
                             </TouchableOpacity>
                         </View>
                         <View>
@@ -221,8 +223,8 @@ const ScholarshipDetails = ({ navigation }) => {
 
                     <View style={styles.appCont}>
                         <View>
-                            <TouchableOpacity style={{ marginTop: 10 }}>
-                                <Icon name="file-text" size={30} color={LIGHT_TEXT} />
+                            <TouchableOpacity style={styles.iconCont}>
+                                <FontAwesome name="file" size={20} color='#51e3fc' />
                             </TouchableOpacity>
                         </View>
                         <View>
@@ -234,8 +236,8 @@ const ScholarshipDetails = ({ navigation }) => {
 
                     <View style={styles.appCont}>
                         <View>
-                            <TouchableOpacity style={{ marginTop: 10 }}>
-                                <Icon name="file-text" size={30} color={LIGHT_TEXT} />
+                            <TouchableOpacity style={styles.iconCont}>
+                                <Icon name="people" size={20} color='#51e3fc' />
                             </TouchableOpacity>
                         </View>
                         <View>
@@ -251,32 +253,45 @@ const ScholarshipDetails = ({ navigation }) => {
                     {howToApplySteps.map(renderApplyStep)}
                 </View>
 
-                <View style={styles.subscriptionSection}>
-                    <Text style={styles.subscriptionTitle}>Tech Innovators Inc. </Text>
+
+
+                <LinearGradient
+                    colors={['#51e3fc', '#064b63ff']} // You can change gradient colors
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.subscriptionSection}
+                >
+                    <Text style={styles.subscriptionTitle}>Tech Innovators Inc.</Text>
+
                     <View style={styles.verifiedBadge}>
-                        <Icon name="checkmark-circle" size={16} color="#48BB78" />
+                        <Icon name="checkmark-circle" size={16} color="#12db00" />
                         <Text style={styles.verifiedText}>Verified Vendor</Text>
-
                     </View>
-                    <Text style={{ fontSize: 17, color: 'white' }}>Empowering students through tech support</Text>
+
+                    <Text style={{ fontSize: 17, color: 'white' }}>
+                        Empowering students through tech support
+                    </Text>
+
                     <View style={styles.upgradeRow}>
-                        <TouchableOpacity style={styles.vendorButton} >
-                            <Text style={styles.upgradeText}>View Vendor Profile</Text>
-                            {/* <Icon name="arrow-forward-outline" size={20} color={LIGHT_TEXT}  /> */}
+                        <TouchableOpacity>
+                            <View style={styles.vendorButton}>
+                                <Text style={styles.upgradeText}>View Vendor Profile</Text>
+                                <FontAwesome6 name='arrow-right-long' size={15} color='white' />
+                            </View>
                         </TouchableOpacity>
-
                     </View>
-                </View>
+                </LinearGradient>
+
 
                 <View style={{ alignItems: 'center' }}>
                     <TouchableOpacity style={styles.lastBtn} onPress={() => nav.navigate('VideoHub')}>
-                        <Text style={{ color: '#03A2D5', fontSize: 22, fontWeight: '600' }}>Apply Now</Text>
+                        <Text style={{ color: 'white', fontSize: 22, fontWeight: '600' }}>Apply Now</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={{ alignItems: 'center' }}>
                     <TouchableOpacity style={styles.SaveBtn}>
-                        <Text style={{ color: 'white', fontSize: 22, fontWeight: '600' }}>Save for Later</Text>
+                        <Text style={{ color: '#51e3fc', fontSize: 22, fontWeight: '600' }}>Save for Later</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -286,6 +301,15 @@ const ScholarshipDetails = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    iconCont: {
+        marginTop: 10,
+        backgroundColor: '#03a2d5', // change to your preferred color
+        width: 50,                  // adjust size
+        height: 50,
+        borderRadius: 30,           // half of width/height for a perfect circle
+        justifyContent: 'center',   // center the icon vertically
+        alignItems: 'center',
+    },
     container: {
         flex: 1,
         backgroundColor: DARK_BACKGROUND,
@@ -324,12 +348,12 @@ const styles = StyleSheet.create({
     // NOTE: ApplicationTitle will conflict with sectionHeaderTitle if used as a general title.
     ApplicationTitle: {
         color: LIGHT_TEXT,
-        fontSize: 22,
-        fontWeight: '800',
+        fontSize: 20,
+        fontWeight: '600',
         marginBottom: 10,
     },
     scholarshipCard: {
-        backgroundColor: CARD_BACKGROUND,
+        backgroundColor: "#021e38",
         borderRadius: 20,
         padding: 20,
         marginBottom: 10,
@@ -389,7 +413,7 @@ const styles = StyleSheet.create({
         color: PRIMARY_BLUE,
         fontSize: 30,
         fontWeight: 'bold',
-        
+
     },
     deadline: {
         color: LIGHT_TEXT,
@@ -418,12 +442,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     infoTagText: {
-        color: PRIMARY_BLUE,
+        color: 'white',
         fontSize: 14,
     },
 
     aboutStyles: {
-        backgroundColor: CARD_BACKGROUND,
+        backgroundColor: '#021e38',
         borderRadius: 20,
         padding: 20,
         marginTop: 12,
@@ -446,7 +470,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     benefitCard: {
-        backgroundColor: CARD_BACKGROUND,
+        backgroundColor: '#021e38',
         borderRadius: 16,
         width: BENEFIT_CARD_WIDTH,
         padding: 15,
@@ -477,7 +501,7 @@ const styles = StyleSheet.create({
     },
 
     eligibilityCard: {
-        backgroundColor: CARD_BACKGROUND,
+        backgroundColor: '#021e38',
         borderRadius: 20,
         padding: 20,
         marginTop: 10,
@@ -505,7 +529,7 @@ const styles = StyleSheet.create({
 
     // --- NEW STYLES: How to Apply ---
     howToApplyCard: {
-        backgroundColor: CARD_BACKGROUND,
+        backgroundColor: '#021e38',
         borderRadius: 20,
         padding: 20,
         marginTop: 20,
@@ -516,19 +540,19 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     numberCircle: {
-        width: 30,
-        height: 30,
+        width: 35,
+        height: 35,
         borderRadius: 20,
-        backgroundColor: '#03A2D5', 
+        backgroundColor: '#03a2d5',
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 15,
         flexShrink: 0,
-        marginTop: 2, 
+        marginTop: 2,
     },
     numberText: {
         color: LIGHT_TEXT,
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: 'bold',
     },
     applyStepText: {
@@ -539,7 +563,7 @@ const styles = StyleSheet.create({
     },
 
     appCont: {
-        backgroundColor: CARD_BACKGROUND,
+        backgroundColor: '#021e38',
         borderRadius: 10,
         padding: 20,
         marginTop: 10,
@@ -551,7 +575,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#69E8FF',
         borderRadius: 12,
         padding: 15,
-        marginTop:18,
+        marginTop: 18,
     },
     subscriptionTitle: {
         color: '#000000ff',
@@ -582,12 +606,12 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 25,
         flexDirection: 'row',
-
+        gap: 10,
     },
     upgradeText: {
         color: '#ffffffff',
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 14,
     },
     upgradeHint: {
         flexDirection: 'row',
@@ -626,19 +650,17 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     lastBtn: {
-        backgroundColor: 'transparent',
+        backgroundColor: '#51e3fc',
         alignItems: 'center',
         width: '97%',
         justifyContent: 'center',
         paddingVertical: 12,
         marginTop: 10,
         paddingHorizontal: 12,
-        borderWidth: 1,
-        borderColor: '#03A2D5',
         borderRadius: 10,
     },
     SaveBtn: {
-        backgroundColor: '#03A2D5',
+        backgroundColor: 'transparent',
         alignItems: 'center',
         width: '97%',
         justifyContent: 'center',

@@ -169,9 +169,8 @@ const UpdateProfileScreen = ({ navigation }) => {
           ))}
         </ScrollView>
       </View>
-
-      {/* CONTENT SECTION */}
       <View style={styles.contentContainer}>{renderTabContent()}</View>
+      
     </View>
   );
 };

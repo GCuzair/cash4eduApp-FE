@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -14,7 +14,7 @@ import ScholarshipCard from "../../components/ScholarshipCard";
 
 const { width } = Dimensions.get("window");
 
-const ScholarshipScreen = ({navigation}) => {
+const ScholarshipScreen = ({ navigation }) => {
   const [search, setSearch] = useState("");
 
   const checklistData = [
@@ -24,7 +24,7 @@ const ScholarshipScreen = ({navigation}) => {
     "Interests, Hobbies & Goals",
     "Residency Eligibility",
     "Set Up Quick Apply",
-    "Stay in the Loop"
+    "Stay in the Loop",
   ];
 
   const scholarshipData = [
@@ -35,7 +35,7 @@ const ScholarshipScreen = ({navigation}) => {
       deadline: "Oct 20, 2025",
       matched: "89",
       type: "featured",
-      tags: ["Any Level", "First-Gen", "Need Based"]
+      tags: ["Any Level", "First-Gen", "Need Based"],
     },
     {
       id: "2",
@@ -44,7 +44,7 @@ const ScholarshipScreen = ({navigation}) => {
       deadline: "Oct 20, 2025",
       matched: "89",
       type: "new",
-      tags: ["Undergraduate", "3.0+ GPA", "Merit-Based"]
+      tags: ["Undergraduate", "3.0+ GPA", "Merit-Based"],
     },
     {
       id: "3",
@@ -53,31 +53,34 @@ const ScholarshipScreen = ({navigation}) => {
       deadline: "Oct 20, 2025",
       matched: "89",
       type: "new",
-      tags: ["Undergraduate", "Creative Arts", "Portfolio"]
-    }
+      tags: ["Undergraduate", "Creative Arts", "Portfolio"],
+    },
   ];
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Scholarship</Text>
+        <Text style={styles.headerSub}>
+          Welcome back, Aroma. Find scholarships that match your profile.
+        </Text>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
-
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Scholarship</Text>
-          <Text style={styles.headerSub}>
-            Welcome back, Aroma. Find scholarships that match your profile.
-          </Text>
-        </View>
-
         <LinearGradient
           colors={["#51E3FC", "#0257A7"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradientBox}
         >
-            <Text style={styles.percentText}>20%</Text>
+          <Text style={styles.percentText}>20%</Text>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={styles.profileText}>of your profile is complete</Text>
-            <Icon name="alert-circle" size={10} color="#000" style={{ marginTop: -10 }} />
+            <Text style={styles.profileText}>of your profile is complete</Text>
+            <Icon
+              name="alert-circle"
+              size={10}
+              color="#000"
+              style={{ marginTop: -10 }}
+            />
           </View>
 
           <View style={styles.progressBar}>
@@ -87,7 +90,12 @@ const ScholarshipScreen = ({navigation}) => {
           <View style={styles.listBox}>
             {checklistData.map((text, i) => (
               <View key={i} style={styles.checkRow}>
-                <Icon name="checkmark-circle" size={18} color="#fff" style={{ marginRight: 8 }} />
+                <Icon
+                  name="checkmark-circle"
+                  size={18}
+                  color="#fff"
+                  style={{ marginRight: 8 }}
+                />
                 <Text style={styles.listItem}>{text}</Text>
               </View>
             ))}
@@ -99,6 +107,7 @@ const ScholarshipScreen = ({navigation}) => {
           </TouchableOpacity>
         </LinearGradient>
 
+        {/* Search & Filter */}
         <View style={styles.searchCard}>
           <View style={styles.searchInputBox}>
             <Icon name="search" size={18} color="#8FA6B5" />
@@ -124,17 +133,20 @@ const ScholarshipScreen = ({navigation}) => {
           </View>
         </View>
 
+        {/* Matches */}
         <View style={styles.matchesHeader}>
           <Text style={styles.sectionTitle}>Your Personalized Matches</Text>
           <Text style={styles.countText}>15 found</Text>
         </View>
 
-        {scholarshipData.map(item => (
+        {scholarshipData.map((item) => (
           <ScholarshipCard key={item.id} {...item} />
         ))}
 
-        <TouchableOpacity style={styles.Btn}
-        onPress={() => navigation.navigate('ScholarshipDetails')}>
+        <TouchableOpacity
+          style={styles.Btn}
+          onPress={() => navigation.navigate("ScholarshipDetails")}
+        >
           <Text style={styles.BtnText}>View All Scholarships</Text>
           <Icon name="arrow-forward" size={16} color="#03A2D5" />
         </TouchableOpacity>
@@ -143,7 +155,6 @@ const ScholarshipScreen = ({navigation}) => {
           <Text style={styles.BtnText}>View Scholarship Applications</Text>
           <Icon name="arrow-forward" size={16} color="#03A2D5" />
         </TouchableOpacity>
-
       </ScrollView>
     </View>
   );
@@ -152,16 +163,21 @@ const ScholarshipScreen = ({navigation}) => {
 export default ScholarshipScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000", paddingBottom: 75 },
-
-  header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
-  headerTitle: { color: "#fff", fontSize: 24, fontWeight: "700" },
+  container: { flex: 1, backgroundColor: "#000", paddingBottom: 85,paddingTop:15 },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
+    backgroundColor: "#000",
+    zIndex: 2,
+  },
+  headerTitle: { color: "#fff", fontSize: 28, fontWeight: "700" },
   headerSub: {
     fontSize: 14,
     fontWeight: "600",
     color: "#fff",
     marginTop: 3,
-    width: "90%"
+    width: "90%",
   },
 
   gradientBox: {
@@ -169,34 +185,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 25,
-    marginBottom: 25
+    marginBottom: 25,
   },
   percentText: {
     fontSize: 55,
     fontWeight: "600",
-    color: "#000"
+    color: "#000",
   },
   profileText: {
     fontSize: 11,
     color: "#000",
     marginTop: -10,
     fontWeight: "600",
-    
   },
   progressBar: {
     width: "70%",
     height: 8,
     backgroundColor: "#fff",
     borderRadius: 20,
-    marginTop: 10
+    marginTop: 10,
   },
   progressFill: {
     width: "70%",
     height: "100%",
     backgroundColor: "#0257A7",
-    borderRadius: 10
+    borderRadius: 10,
   },
-
   listBox: { marginTop: 10 },
   checkRow: { flexDirection: "row", alignItems: "center", marginVertical: 1 },
   listItem: { color: "#E6F7FF", fontSize: 14, fontWeight: "500" },
@@ -205,7 +219,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     backgroundColor: "#021E38",
     padding: 12,
-    borderRadius: 14
+    borderRadius: 14,
   },
   searchInputBox: {
     flexDirection: "row",
@@ -213,18 +227,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 20
+    borderRadius: 20,
   },
   searchInput: {
     color: "#fff",
     marginLeft: 8,
     fontSize: 12,
-    flex: 1
+    flex: 1,
   },
   filterRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 12
+    marginTop: 12,
   },
   advBtn: { flexDirection: "row", alignItems: "center" },
   advText: { color: "#03A2D5", fontSize: 11, marginLeft: 5 },
@@ -237,7 +251,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#03A2D5"
+    borderColor: "#03A2D5",
   },
   sortText: { color: "#fff", fontSize: 11, marginRight: 5 },
 
@@ -246,12 +260,12 @@ const styles = StyleSheet.create({
     marginTop: 25,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
   },
   sectionTitle: {
     color: "#fff",
     fontSize: 15,
-    fontWeight: "700"
+    fontWeight: "700",
   },
   countText: { color: "#8FA6B5", fontSize: 12 },
 
@@ -265,15 +279,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 15,
     width: "80%",
-    alignSelf: "center"
+    alignSelf: "center",
   },
   BtnText: {
     color: "#03A2D5",
     fontWeight: "600",
     marginRight: 6,
-    fontSize: 14
+    fontSize: 14,
   },
-
   compBtn: {
     backgroundColor: "#021E38",
     borderRadius: 20,
@@ -283,12 +296,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 15,
     width: "65%",
-    alignSelf: "center"
+    alignSelf: "center",
   },
   compText: {
     color: "#fff",
     fontWeight: "600",
     marginRight: 6,
-    fontSize: 14
-  }
+    fontSize: 14,
+  },
 });

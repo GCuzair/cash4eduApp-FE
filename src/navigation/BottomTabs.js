@@ -5,8 +5,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // Screens
-import Notification from '../screens/student/NotificationScreen';
-import VendorProfile from '../screens/vendor/VendorProfile';
+import VideoNavigator from './VideoNavigator';
+import PerkNavigator from './PerksNavigator';
 import ProfileNavigator from "./ProfileNavigator"
 import ScholarshipStack from './ScholarshipStack';
 import HomeNavigator from './HomeNavigator';
@@ -85,6 +85,7 @@ export default function BottomTabs() {
             <View style={styles.iconContainer}>
               {icon}
               <Text style={[styles.label, focused && styles.activeLabel]}>
+                
                 {label}
               </Text>
             </View>
@@ -94,8 +95,8 @@ export default function BottomTabs() {
     >
       <Tab.Screen name="Home" component={HomeNavigator} />
       <Tab.Screen name="Scholarships" component={ScholarshipStack} />
-      <Tab.Screen name="Videos" component={Notification} />
-      <Tab.Screen name="Perks" component={VendorProfile} />
+      <Tab.Screen name="Videos" component={VideoNavigator} />
+      <Tab.Screen name="Perks" component={PerkNavigator} />
       <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>
   );
