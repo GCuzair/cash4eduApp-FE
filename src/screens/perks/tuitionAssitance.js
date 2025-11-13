@@ -20,8 +20,7 @@ const TuitionAssistanceScreen = () => {
         const navigation = useNavigation(); 
 
     return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            {/* Header */}
+        <View style={{ backgroundColor: "#000814", flex: 1 }}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={22} color="#fff" />
@@ -29,6 +28,9 @@ const TuitionAssistanceScreen = () => {
                 <Text style={styles.headerTitle}>Tuition Assistance</Text>
                 <Ionicons name="bookmark-outline" size={22} color="#fff" />
             </View>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+            {/* Header */}
+            
 
             {/* Discover Section */}
             <View style={styles.card}>
@@ -73,7 +75,7 @@ const TuitionAssistanceScreen = () => {
 
             {/* Filter Buttons */}
             <View style={styles.filterRow}>
-                {['All Programs', 'Employer', 'Full Tuition', 'Public Aid'].map((label, index) => {
+                {['Employer','All Programs', 'Full Tuition', 'Public Aid'].map((label, index) => {
                     const isSelected = selectedFilter === label;
                     return (
                         <TouchableOpacity key={index} onPress={() => setSelectedFilter(label)}>
@@ -293,7 +295,7 @@ const TuitionAssistanceScreen = () => {
             </View>
 
             <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Featured Employers</Text>
+                <Text style={styles.sectionTitle}>Related Opportunities</Text>
                 <Text style={styles.viewAll}>View All</Text>
             </View>
 
@@ -317,6 +319,7 @@ const TuitionAssistanceScreen = () => {
             </ScrollView>
 
         </ScrollView >
+        </View>
     );
 };
 
@@ -596,14 +599,15 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         marginBottom: 15,
+        marginTop:10,
     },
     headerTitle: {
         color: '#fff',
         fontSize: 18,
         fontWeight: '600',
-        marginRight: 100,
+        marginRight: 130,
     },
 
     card: {
@@ -714,6 +718,7 @@ const styles = StyleSheet.create({
         width: 180,
         padding: 15,
         marginRight: 12,
+        
     },
     oppCard:{
         backgroundColor: '#04283C',
@@ -721,6 +726,7 @@ const styles = StyleSheet.create({
         width: 150,
         padding: 15,
         marginRight: 12,
+        paddingBottom:50
     },
     oppIcon:{
         borderRadius: 10,

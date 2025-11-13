@@ -32,6 +32,10 @@ import VendorProfile from './src/screens/vendor/VendorProfile';
 import AdmninSignIn from './src/screens/admin/AdminSignIn';
 import AdminDashboard from './src/screens/admin/AdminDashboard';
 import ScholarshipDetails from './src/screens/scholarships/ScholarshipDetails';
+import videoHub from './src/screens/videos/videoHub'
+import videoPlayer from './src/screens/videos/videoPlayer'
+import TuitionAssistance from './src/screens/perks/tuitionAssitance';
+import PerkPreview from './src/screens/perks/perkPreview';
 enableScreens();
 
 const Stack = createNativeStackNavigator();
@@ -73,6 +77,11 @@ function App() {
             <Stack.Screen name="MainTabs" component={BottomTabs} />
 
             <Stack.Screen name="ScholarshipDetails" component={ScholarshipDetails} />
+            <Stack.Screen name="videoHub" component={videoHub} />
+            <Stack.Screen name="videoPlayer" component={videoPlayer} />
+            <Stack.Screen name="tuitionAssistance" component={TuitionAssistance} />
+            <Stack.Screen name="perkPreview" component={PerkPreview} />
+            
 
             {/* vendor flow */}
             <Stack.Screen name="VendorDashboard" component={vendor} />

@@ -269,6 +269,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         marginVertical: 5,
+        paddingBottom:10,
     },
     chatBubbleBot: {
         backgroundColor: '#E6F7FF',
@@ -286,11 +287,13 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
-        paddingTop: 10,
+        paddingTop: 2,
+        paddingBottom:73,
     },
     validityBadge: {
         position: 'absolute',
-        left: 215,
+        left: 219,
+        top:-8,
         backgroundColor: '#ffc947',
         borderRadius: 15,
         paddingHorizontal: 15,
@@ -392,13 +395,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0,0,0,0.6)',
+        
     },
     chatBox: {
         height: '75%',
         backgroundColor: '#fff',
         borderRadius: 20,
         overflow: 'hidden',
-        padding: 15,
+        
     },
     chatHeader: {
         flexDirection: 'row',

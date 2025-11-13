@@ -7,6 +7,9 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
+    Modal,
+    TouchableWithoutFeedback,
+
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -17,6 +20,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 const StudentPerk1 = () => {
     const navigation = useNavigation()
     const [activeCategory, setActiveCategory] = useState('Tuition Assistance');
+    const [showBottomSheet, setShowBottomSheet] = useState(false);
+
 
     const categories = [
         { id: 1, name: 'Tuition Assistance', icon: 'graduation-cap' },
@@ -25,7 +30,8 @@ const StudentPerk1 = () => {
     ];
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container}
+            showsVerticalScrollIndicator={false}>
             <View>
                 {/* Header */}
                 <View style={styles.header}>
@@ -44,12 +50,7 @@ const StudentPerk1 = () => {
                             placeholderTextColor="#ffffffff"
                         />
                         <FontAwesome5 name="search" size={16} color="#fff" />
-                        <FontAwesome5
-                            name="microphone"
-                            size={16}
-                            color="#fff"
-                            style={{ marginLeft: 10 }}
-                        />
+                        
                     </View>
                     <View style={styles.settings}>
                         <Text style={styles.txt}>Advance Filters</Text>
@@ -141,7 +142,10 @@ const StudentPerk1 = () => {
                             />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.directionButton} >
+                        <TouchableOpacity
+                            style={styles.directionButton}
+                            onPress={() => setShowBottomSheet(true)} // 👈 open modal
+                        >
                             <Text style={styles.directionButtonText}>Get Directions</Text>
                             <FontAwesome5 name="directions" color="#00b4d8" size={16} />
                         </TouchableOpacity>
@@ -170,30 +174,52 @@ const StudentPerk1 = () => {
                     </View>
                 </LinearGradient>
 
-                <View style={styles.openWithMain}>
-                    <Text style={styles.openWithTxt}>Open with</Text>
+                <Modal
+                    visible={showBottomSheet}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowBottomSheet(false)}
+                >
+                    {/* Overlay background */}
+                    <TouchableWithoutFeedback onPress={() => setShowBottomSheet(false)}>
+                        <View style={styles.modalOverlay} />
+                    </TouchableWithoutFeedback>
 
-                    <View style={styles.logoCont}>
-                        <View style={styles.LogoCont}>
-                            <TouchableOpacity onPress={() => navigation.navigate('ExpandedMap')}>
-                                <Image source={require('../../assets/images/google-maps.png')}
-                                    style={styles.logoSmall} />
-                            </TouchableOpacity>
-                            <Text style={styles.imgText}>Google Map</Text>
+                    {/* Bottom Sheet */}
+                    <View style={styles.openWithMain}>
+                        <Text style={styles.openWithTxt}>Open with</Text>
+
+                        <View style={styles.logoCont}>
+                            <View style={styles.LogoCont}>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowBottomSheet(false);
+                                        navigation.navigate('ExpandedMap');
+                                    }}
+                                >
+                                    <Image
+                                        source={require('../../assets/images/google-maps.png')}
+                                        style={styles.logoSmall}
+                                    />
+                                </TouchableOpacity>
+                                <Text style={styles.imgText}>Google Map</Text>
+                            </View>
+
+                            <View style={styles.LogoCont}>
+                                <Image
+                                    source={require('../../assets/images/app-maps.jpg')}
+                                    style={styles.logoSmall}
+                                />
+                                <Text style={styles.imgText}>App Map</Text>
+                            </View>
                         </View>
 
-                        <View style={styles.LogoCont}>
-                            <Image source={require('../../assets/images/app-maps.jpg')}
-                                style={styles.logoSmall} />
-                            <Text style={styles.imgText}>App Map</Text>
+                        <View style={styles.txtCont}>
+                            <Text style={styles.justOnceTxt}>Just Once</Text>
+                            <Text style={styles.alwaysTxt}>Always</Text>
                         </View>
                     </View>
-
-                    <View style={styles.txtCont}>
-                        <Text style={styles.justOnceTxt}>Just Once</Text>
-                        <Text style={styles.alwaysTxt}>Always</Text>
-                    </View>
-                </View>
+                </Modal>
 
 
             </View>
@@ -205,6 +231,32 @@ const StudentPerk1 = () => {
 };
 
 const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)', // dim background
+    },
+
+    stickyHeader: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#000814',
+        paddingHorizontal: 16,
+        paddingTop: 40,
+        paddingBottom: 16,
+        zIndex: 100,
+        elevation: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#013a63',
+    },
+
+    container: {
+        flex: 1,
+        backgroundColor: '#000814',
+        paddingTop: 160, // Pushes content below sticky header
+    },
+
     settings: {
         flexDirection: 'row',
         gap: 45,
@@ -248,22 +300,17 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     openWithMain: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        width: '100%',
-        height: 170,
-        zIndex: 10,
         backgroundColor: '#2e2e2eff',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        padding: 15,
+        padding: 20,
         borderColor: 'white',
-        marginBottom: 40,
         borderTopWidth: 1,
         borderEndWidth: 1,
         borderStartWidth: 1,
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
 
     },
 
@@ -287,8 +334,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 16,
         marginVertical: 10,
-        marginBottom: 50,
-
+        paddingBottom: 110,
     },
 
 
@@ -296,6 +342,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+
     },
     keepLearningIcon: {
         marginRight: 12,
@@ -813,56 +860,7 @@ const styles = StyleSheet.create({
     },
 });
 
-// 2. New Styles for Invite Friends Card (image_60a3c6.png)
-const inviteCardStyles = StyleSheet.create({
-    cardWrap: {
-        backgroundColor: '#001a33', // Dark background to match the sample image
-        borderRadius: 16,
-        padding: 30,
-        marginVertical: 10,
-        alignItems: 'center', // Center everything horizontally
-        width: '90%',
-        alignSelf: 'center',
-    },
-    iconHolder: {
-        backgroundColor: '#00264d', // Slightly lighter dark blue for the icon background
-        borderRadius: 12,
-        padding: 15,
-        marginBottom: 20,
-    },
-    cardTitle: {
-        color: '#fff',
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 8,
-    },
-    cardSubtitle: {
-        color: '#b0bec5',
-        fontSize: 14,
-        textAlign: 'center',
-        marginBottom: 30,
-        paddingHorizontal: 10,
-    },
-    buttonMargin: {
-        marginTop: 10, // Adjust button position
-    },
-    gradientButton: {
-        borderRadius: 10,
-        padding: 3, // This creates the effect of a glowing/gradient border
-    },
-    buttonInner: {
-        backgroundColor: '#001a33', // Dark background color inside the gradient border
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 30,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '700',
-    },
-});
+
 
 
 export default StudentPerk1;

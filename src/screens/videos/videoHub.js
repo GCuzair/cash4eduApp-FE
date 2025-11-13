@@ -15,6 +15,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import LinearGradient from "react-native-linear-gradient";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import EarnCard from "../../components/EarnCard";
 const categories = [
     {
         id: "1",
@@ -95,173 +96,174 @@ const recommendedVideos = [
 const VideoHubScreen = () => {
     const navigation = useNavigation();
     return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            <View>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>Video Hub</Text>
+        <View style={{ backgroundColor: "#000814", flex: 1 }}>
+            <View style={styles.header}>
+                <Text style={styles.title}>Video Hub</Text>
 
-                    <View style={styles.tokenContainer}>
-                        <Ionicons name="wallet-outline" size={14} color="#fff" />
-                        <Text style={styles.tokenText}>1,250 Tokens</Text>
-                    </View>
-                </View>
-
-                <Text style={styles.subtitle}>
-                    Watch, learn, and earn tokens for every video you complete.
-                </Text>
-
-                {/* Search */}
-                <View style={styles.searchContainer}>
-                    <View style={styles.searchBox}>
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Search videos or topics..."
-                            placeholderTextColor="#aaa"
-                        />
-                        <FontAwesome5 name="search" size={16} color="#fff" />
-                        <FontAwesome5
-                            name="microphone"
-                            size={16}
-                            color="#fff"
-                            style={{ marginLeft: 10 }}
-                        />
-                    </View>
-                    <TouchableOpacity style={styles.sortBox}>
-                        <Text style={styles.sortText}>Sort by: Highest Tokens</Text>
-                        <MaterialIcons name="arrow-drop-down" size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Explore by Category */}
-                <Text style={styles.sectionTitle}>Explore by Category</Text>
-                <FlatList
-                    horizontal
-                    data={categories}
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <LinearGradient
-                            colors={[item.color1, item.color2]}
-                            style={styles.categoryCard}
-                        >
-                            <Ionicons name={item.icon} size={24} color="#fff" />
-                            <Text style={styles.categoryTitle}>{item.title}</Text>
-                            <Text style={styles.categorySubtitle}>{item.subtitle}</Text>
-                            <Text style={styles.categoryVideos}>{item.videos} videos</Text>
-                        </LinearGradient>
-                    )}
-                />
-
-                {/* Weekly Progress */}
-                <View style={styles.weeklyBox}>
-                    <Text style={styles.sectionTitle}>Weekly Progress</Text>
-                    <Text style={styles.weeklyText}>
-                        You’ve watched <Text style={{ fontWeight: "bold" }}>8</Text> out of{" "}
-                        <Text style={{ fontWeight: "bold" }}>20</Text> videos this week
-                    </Text>
-                    <View style={styles.progressBar}>
-                        <View style={styles.progressFill} />
-                    </View>
-                    <View style={styles.streakRow}>
-                        <Ionicons name="flame-outline" size={20} color="#ff9800" />
-                        <Text style={styles.streakText}>Streak: 3 Days</Text>
-                    </View>
-                </View>
-
-                {/* Daily Challenge */}
-                <LinearGradient
-                    colors={['#51e3fc', '#006b8f']} // gradient shades (light → dark)
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.challengeBox}
-                >
-                    <View style={styles.challengeLeft}>
-                        <Text style={styles.challengeTitle}>Daily Challenge</Text>
-                        <Text style={styles.challengeSubtitle}>
-                            Watch 3 videos today to earn +50 tokens!
-                        </Text>
-
-                        <TouchableOpacity
-                            style={styles.watchNowBtn}
-                            onPress={() => navigation.navigate('VideoPlayer')}
-                        >
-                            <Text style={styles.watchNowText}>Watch Now</Text>
-                            <Ionicons name="arrow-forward-outline" size={16} color="#00b4d8" />
-                        </TouchableOpacity>
-                    </View>
-                    <FontAwesome5 name="trophy" size={75} color="#ffb300" />
-                </LinearGradient>
-
-                {/* Recommended for You */}
-                <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
-                    Recommended for You
-                </Text>
-                <View style={styles.recommendGrid}>
-                    {recommendedVideos.map((item) => (
-                        <View key={item.id} style={styles.videoCard}>
-                            <View>
-                                <Image
-                                    source={{ uri: item.image }}
-                                    style={styles.videoImage}
-                                    resizeMode="cover"
-                                />
-                                {/* Overlay labels */}
-                                <View style={styles.overlayTop}>
-                                    {item.isSponsored && (
-                                        <View style={styles.sponsoredBadge}>
-                                            <Text style={styles.badgeText}>Sponsored</Text>
-                                        </View>
-                                    )}
-                                    <LinearGradient
-                                        colors={['#51e3fc', '#021e38']} // golden gradient
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={styles.tokenBadge}
-                                    >
-                                        <Text style={styles.badgeText}>{item.tokens}</Text>
-                                    </LinearGradient>
-                                </View>
-                                <AntDesign
-                                    name="playcircleo"
-                                    size={32}
-                                    color="#fff"
-                                    style={styles.playIcon}
-                                />
-                                <Text style={styles.durationText}>2:25</Text>
-                            </View>
-                            <View style={{ padding: 8 }}>
-                                <Text style={styles.videoTitle} numberOfLines={2}>
-                                    {item.title}
-                                </Text>
-                                <View style={styles.authorRow}>
-                                    <FontAwesome5 name="user-circle" size={14} color="#fff" />
-                                    <Text style={styles.authorText}>{item.author}</Text>
-                                </View>
-                                <View style={styles.videoMeta}>
-                                    <Text style={[styles.levelText, { color: "#00e676" }]}>
-                                        {item.level}
-                                    </Text>
-                                    <Text style={styles.viewsText}>
-                                        👁 {item.views} views
-                                    </Text>
-
-
-                                </View>
-
-                            </View>
-                        </View>
-                    ))}
-
-                </View>
-
-                <View style={{ width: '100%', alignItems: 'center', paddingVertical: 24, marginBottom: 20 }}>
-                    <TouchableOpacity style={styles.lastBtn} onPress={() => navigation.navigate('VideoHub')}>
-                        <Text style={{ color: '#03A2D5', fontSize: 22, fontWeight: '600' }}>Load More Videos</Text>
-                    </TouchableOpacity>
+                <View style={styles.tokenContainer}>
+                    <Ionicons name="wallet-outline" size={14} color="#fff" />
+                    <Text style={styles.tokenText}>1,250 Tokens</Text>
                 </View>
             </View>
-        </ScrollView>
+            <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+                <View>
+
+                    <Text style={styles.subtitle}>
+                        Watch, learn, and earn tokens for every video you complete.
+                    </Text>
+
+                    {/* Search */}
+                    <View style={styles.searchContainer}>
+                        <View style={styles.searchBox}>
+                            <TextInput
+                                style={styles.searchInput}
+                                placeholder="Search videos or topics..."
+                                placeholderTextColor="#aaa"
+                            />
+                            <FontAwesome5 name="search" size={16} color="#fff" />
+                            <FontAwesome5
+                                name="microphone"
+                                size={16}
+                                color="#fff"
+                                style={{ marginLeft: 10 }}
+                            />
+                        </View>
+                        <TouchableOpacity style={styles.sortBox}>
+                            <Text style={styles.sortText}>Sort by: Highest Tokens</Text>
+                            <MaterialIcons name="arrow-drop-down" size={22} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Explore by Category */}
+                    <Text style={styles.sectionTitle}>Explore by Category</Text>
+                    <FlatList
+                        horizontal
+                        data={categories}
+                        keyExtractor={(item) => item.id}
+                        showsHorizontalScrollIndicator={false}
+                        renderItem={({ item }) => (
+                            <LinearGradient
+                                colors={[item.color1, item.color2]}
+                                style={styles.categoryCard}
+                            >
+                                <Ionicons name={item.icon} size={24} color="#fff" />
+                                <Text style={styles.categoryTitle}>{item.title}</Text>
+                                <Text style={styles.categorySubtitle}>{item.subtitle}</Text>
+                                <Text style={styles.categoryVideos}>{item.videos} videos</Text>
+                            </LinearGradient>
+                        )}
+                    />
+
+                    {/* Weekly Progress */}
+                    <View style={styles.weeklyBox}>
+                        <Text style={styles.sectionTitle}>Weekly Progress</Text>
+                        <Text style={styles.weeklyText}>
+                            You’ve watched <Text style={{ fontWeight: "bold" }}>8</Text> out of{" "}
+                            <Text style={{ fontWeight: "bold" }}>20</Text> videos this week
+                        </Text>
+                        <View style={styles.progressBar}>
+                            <View style={styles.progressFill} />
+                        </View>
+                        <View style={styles.streakRow}>
+                            <Ionicons name="flame-outline" size={20} color="#ff9800" />
+                            <Text style={styles.streakText}>Streak: 3 Days</Text>
+                        </View>
+                    </View>
+
+                    {/* Daily Challenge */}
+                    <LinearGradient
+                        colors={['#51e3fc', '#006b8f']} // gradient shades (light → dark)
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.challengeBox}
+                    >
+                        <View style={styles.challengeLeft}>
+                            <Text style={styles.challengeTitle}>Daily Challenge</Text>
+                            <Text style={styles.challengeSubtitle}>
+                                Watch 3 videos today to earn +50 tokens!
+                            </Text>
+
+                            <TouchableOpacity
+                                style={styles.watchNowBtn}
+                                onPress={() => navigation.navigate('videoPlayer')}
+                            >
+                                <Text style={styles.watchNowText}>Watch Now</Text>
+                                <Ionicons name="arrow-forward-outline" size={16} color="#00b4d8" />
+                            </TouchableOpacity>
+                        </View>
+                        <FontAwesome5 name="trophy" size={75} color="#ffb300" />
+                    </LinearGradient>
+
+                    {/* Recommended for You */}
+                    <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
+                        Recommended for You
+                    </Text>
+                    <View style={styles.recommendGrid}>
+                        {recommendedVideos.map((item) => (
+                            <View key={item.id} style={styles.videoCard}>
+                                <View>
+                                    <Image
+                                        source={{ uri: item.image }}
+                                        style={styles.videoImage}
+                                        resizeMode="cover"
+                                    />
+                                    {/* Overlay labels */}
+                                    <View style={styles.overlayTop}>
+                                        {item.isSponsored && (
+                                            <View style={styles.sponsoredBadge}>
+                                                <Text style={styles.badgeText}>Sponsored</Text>
+                                            </View>
+                                        )}
+                                        <LinearGradient
+                                            colors={['#51e3fc', '#021e38']} // golden gradient
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 1 }}
+                                            style={styles.tokenBadge}
+                                        >
+                                            <Text style={styles.badgeText}>{item.tokens}</Text>
+                                        </LinearGradient>
+                                    </View>
+                                    <AntDesign
+                                        name="playcircleo"
+                                        size={32}
+                                        color="#fff"
+                                        style={styles.playIcon}
+                                    />
+                                    <Text style={styles.durationText}>2:25</Text>
+                                </View>
+                                <View style={{ padding: 8 }}>
+                                    <Text style={styles.videoTitle} numberOfLines={2}>
+                                        {item.title}
+                                    </Text>
+                                    <View style={styles.authorRow}>
+                                        <FontAwesome5 name="user-circle" size={14} color="#fff" />
+                                        <Text style={styles.authorText}>{item.author}</Text>
+                                    </View>
+                                    <View style={styles.videoMeta}>
+                                        <Text style={[styles.levelText, { color: "#00e676" }]}>
+                                            {item.level}
+                                        </Text>
+                                        <Text style={styles.viewsText}>
+                                            👁 {item.views} views
+                                        </Text>
+
+
+                                    </View>
+
+                                </View>
+                            </View>
+                        ))}
+
+                    </View>
+
+                    <View style={{ width: '100%', alignItems: 'center', paddingVertical: 24, marginBottom: 20 }}>
+                        <TouchableOpacity style={styles.lastBtn} onPress={() => navigation.navigate('VideoHub')}>
+                            <Text style={{ color: '#03A2D5', fontSize: 22, fontWeight: '600' }}>Load More Videos</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
+        </View>
 
     );
 };
@@ -278,8 +280,10 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+        backgroundColor: "#000814",
+        padding: 10,
     },
-    title: { color: "#fff", fontSize: 24, fontWeight: "bold" },
+    title: { color: "#fff", fontSize: 24, fontWeight: "bold", marginLeft: 10 },
     tokenContainer: {
         flexDirection: "row",
         backgroundColor: "#0077b6",
@@ -292,8 +296,8 @@ const styles = StyleSheet.create({
     tokenText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
     subtitle: {
         color: "#b0bec5",
-        marginTop: 8,
-        marginBottom: 16,
+        marginTop:-40,
+        marginBottom: 30,
         fontSize: 14,
     },
     searchContainer: {
@@ -465,8 +469,8 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 10,
         fontWeight: "600",
-        paddingHorizontal:5,
-        paddingVertical:1,
+        paddingHorizontal: 5,
+        paddingVertical: 1,
     },
     playIcon: {
         position: "absolute",
