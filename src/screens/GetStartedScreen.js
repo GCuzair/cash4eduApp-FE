@@ -51,6 +51,7 @@ const GetStartedScreen = ({ navigation }) => {
               style={styles.socialButton}
               activeOpacity={0.85}
               accessibilityLabel={`Sign in with ${item.text}`}
+              onPress={()=>navigation.replace('VendorTabs')}
             >
               <Icon name={item.name} size={22} color={item.color} />
               <Text style={styles.socialText}>{item.text}</Text>
