@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -7,21 +7,96 @@ import {
   TouchableOpacity,
   Switch,
   ScrollView,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { ProfileContext } from "../../context/ProfileContext";
+import { AuthContext } from "../../context/AuthContext"; // Add this import
+import { useNavigation } from '@react-navigation/native'; // Add this import
 
 const ProfileScreen = ({ navigation }) => {
   const [isLightMode, setIsLightMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { userInfo } = useContext(ProfileContext);
+  const { logout } = useContext(AuthContext); // Get logout from AuthContext
+
+  // Handle logout function
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            const result = await logout();
+            if (result.success) {
+              // Navigate to login screen
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'SignIn' }],
+              });
+            } else {
+              Alert.alert("Error", result.error || "Failed to logout");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Handle setting item clicks
+  const handleSettingItemPress = (title) => {
+    switch (title) {
+      case "Logout":
+        handleLogout();
+        break;
+      case "Language":
+        navigation.navigate("LanguageSettings");
+        break;
+      case "Security":
+        navigation.navigate("SecuritySettings");
+        break;
+      case "Terms & Conditions":
+        navigation.navigate("TermsAndConditions");
+        break;
+      case "Privacy Policy":
+        navigation.navigate("PrivacyPolicy");
+        break;
+      case "Help":
+        navigation.navigate("HelpCenter");
+        break;
+      case "Invite a friend":
+        // Handle invite logic
+        Alert.alert("Invite", "Invite feature coming soon!");
+        break;
+      case "Delete Account":
+        Alert.alert(
+          "Delete Account",
+          "This action cannot be undone. Are you sure?",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Delete", style: "destructive" },
+          ]
+        );
+        break;
+      default:
+        console.log(`Pressed: ${title}`);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* Fixed Header (Non-scrollable) */}
+      {/* Fixed Header */}
       <View style={styles.ProfileHeader}>
         <Text style={styles.ProfileText}>Profile</Text>
       </View>
 
-      {/* Scrollable Content */}
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={{ paddingBottom: 100, paddingTop: 20 }}
@@ -34,9 +109,8 @@ const ProfileScreen = ({ navigation }) => {
               source={{ uri: "https://i.pravatar.cc/150?img=3" }}
               style={styles.profileImage}
             />
-
             <View style={styles.headerInfo}>
-              <Text style={styles.userName}>Aroma Tariq</Text>
+              <Text style={styles.userName}>{userInfo?.full_name}</Text>
               <View style={styles.levelBadge}>
                 <Text style={styles.levelText}>Level 3 Learner</Text>
               </View>
@@ -78,42 +152,6 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* ANALYTICS OVERVIEW */}
-        <Text style={styles.sectionTitle}>Analytics Overview</Text>
-        <View style={styles.analyticsCard}>
-          <View style={styles.statsGrid}>
-            {analyticsData.map((item, index) => (
-              <View key={index} style={styles.statCard}>
-                <View style={styles.statContent}>
-                  <View style={styles.statRow}>
-                    <Icon name={item.icon} size={20} color="#fff" />
-                    <Text style={styles.statValue}>{item.value}</Text>
-                  </View>
-                  <Text style={styles.statLabel}>{item.label}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-
-          <TouchableOpacity style={styles.primaryBtnFull}
-            onPress={() => navigation.navigate("ProfileAnalytics")}>
-            <Text style={styles.primaryBtnText}>View Full Analytics</Text>
-            <Icon name="arrow-forward" size={16} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
-        {/* DOCUMENT & PROFILE */}
-        <Text style={styles.sectionTitle}>Document & Profile</Text>
-        <View style={styles.listCard}>
-          {documentItems.map((item, index) => (
-            <RowItem key={index} title={item.title} icon={item.icon} />
-          ))}
-          <TouchableOpacity style={styles.primaryBtnFullOutline}>
-            <Text style={styles.secondaryBtnText}>Complete Your Profile</Text>
-            <Icon name="arrow-forward" size={16} color="#00C6FB" />
-          </TouchableOpacity>
-        </View>
-
         {/* SETTINGS & SUPPORT */}
         <Text style={styles.sectionTitle}>Settings & Support</Text>
 
@@ -122,9 +160,7 @@ const ProfileScreen = ({ navigation }) => {
             title="Notifications"
             icon="notifications-outline"
             value={notificationsEnabled}
-            onValueChange={() =>
-              setNotificationsEnabled(!notificationsEnabled)
-            }
+            onValueChange={() => setNotificationsEnabled(!notificationsEnabled)}
           />
           <ToggleRow
             title="Light Mode"
@@ -134,10 +170,16 @@ const ProfileScreen = ({ navigation }) => {
           />
         </View>
 
+        {/* Updated RowItem with onPress */}
         {chunkArray(settingsItems, 4).map((group, i) => (
           <View key={i} style={styles.listCard}>
             {group.map((item, index) => (
-              <RowItem key={index} title={item.title} icon={item.icon} />
+              <RowItem 
+                key={index} 
+                title={item.title} 
+                icon={item.icon} 
+                onPress={() => handleSettingItemPress(item.title)}
+              />
             ))}
           </View>
         ))}
@@ -147,11 +189,14 @@ const ProfileScreen = ({ navigation }) => {
 };
 
 /* COMPONENTS */
-const RowItem = ({ title, icon }) => (
-  <TouchableOpacity style={styles.rowItem}>
+// Update RowItem to accept onPress prop
+const RowItem = ({ title, icon, onPress }) => (
+  <TouchableOpacity style={styles.rowItem} onPress={onPress}>
     <View style={styles.iconRow}>
       <Icon name={icon} size={18} color="#fff" />
-      <Text style={styles.rowText}>{title}</Text>
+      <Text style={[styles.rowText, title === "Logout" && styles.logoutText]}>
+        {title}
+      </Text>
     </View>
     <Icon name="chevron-forward-outline" size={18} color="#fff" />
   </TouchableOpacity>
@@ -208,13 +253,12 @@ const settingsItems = [
   { title: "Help", icon: "help-circle-outline" },
   { title: "Invite a friend", icon: "share-social-outline" },
   { title: "Delete Account", icon: "trash-outline" },
-  { title: "Logout", icon: "log-out-outline" },
+  { title: "Logout", icon: "log-out-outline" }, // This is the logout button
 ];
 
-/* STYLES */
+/* STYLES - Add logoutText style */
 const styles = StyleSheet.create({
   container: { backgroundColor: "#000", flex: 1 },
-
   ProfileHeader: {
     paddingTop: 30,
     paddingBottom: 10,
@@ -226,32 +270,25 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
   },
-
   scrollContainer: { flex: 1 },
-
   headerCard: {
     borderRadius: 14,
     padding: 16,
     margin: 14,
     backgroundColor: "#021E38",
   },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 14,
   },
-
   profileImage: { width: 60, height: 60, borderRadius: 50 },
-
   headerInfo: { marginLeft: 12 },
-
   userName: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "700",
   },
-
   levelBadge: {
     backgroundColor: "#FFB636",
     paddingVertical: 3,
@@ -259,15 +296,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 4,
   },
-
   levelText: { fontSize: 11, fontWeight: "600", color: "#000" },
-
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-
   statCard: {
     width: "48%",
     borderColor: "#0BA8E3",
@@ -275,37 +309,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
-
   statContent: {
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 12,
   },
-
   statRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
-
   statValue: {
     color: "#fff",
     fontWeight: "700",
     fontSize: 16,
   },
-
   statLabel: {
     color: "#8FBBD4",
     fontSize: 12,
     marginTop: 4,
   },
-
   profileButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 14,
   },
-
   primaryBtn: {
     backgroundColor: "#00C6FB",
     width: "48%",
@@ -316,33 +344,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
   },
-
-  primaryBtnFull: {
-    backgroundColor: "#00C6FB",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginTop: 8,
-  },
   primaryBtnText: { color: "#fff", fontWeight: "700" },
-
-  primaryBtnFullOutline: {
-    borderColor: "#00C6FB",
-    borderWidth: 1.5,
-    width: "90%",
-    alignSelf: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginVertical: 10,
-  },
-
   secondaryBtn: {
     borderColor: "#00C6FB",
     borderWidth: 1.5,
@@ -354,12 +356,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
   },
-
   secondaryBtnText: {
     color: "#00C6FB",
     fontWeight: "700",
   },
-
   sectionTitle: {
     color: "#fff",
     marginLeft: 14,
@@ -367,14 +367,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
   },
-
-  analyticsCard: {
-    backgroundColor: "#021E38",
-    padding: 14,
-    margin: 14,
-    borderRadius: 14,
-  },
-
   listCard: {
     backgroundColor: "#021E38",
     borderRadius: 14,
@@ -382,7 +374,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingVertical: 4,
   },
-
   rowItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -392,13 +383,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#0F2A44",
   },
-
   iconRow: { flexDirection: "row", alignItems: "center" },
-
   rowText: {
     color: "#fff",
     marginLeft: 12,
     fontSize: 16,
+  },
+  logoutText: {
+    color: "#FF5252", // Red color for logout text
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ScholarshipCard from '../../components/ScholarshipCard';
 import PerkCard from '../../components/PerkCard';
 import EarnCard from '../../components/EarnCard';
+import { ProfileContext } from '../../context/ProfileContext';
 
 const { width } = Dimensions.get('window');
 
@@ -21,7 +22,7 @@ const HomeScreen = () => {
   const [search, setSearch] = useState('');
   const [progress, setProgress] = useState(0.2);
   const [selectedTag, setSelectedTag] = useState('STEM');
-
+  const {userInfo} = useContext(ProfileContext);
   const earnData = [
     {
       id: '1',
@@ -83,7 +84,7 @@ const HomeScreen = () => {
         
         {/* Welcome */}
         <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeTitle}>Welcome Back, Aroma! 👋</Text>
+          <Text style={styles.welcomeTitle}>Welcome Back, {userInfo?.full_name}! 👋</Text>
           <Text style={styles.subtitle}>
             Ready to discover new scholarships?
           </Text>

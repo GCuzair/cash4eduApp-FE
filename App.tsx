@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,7 +7,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { enableScreens } from 'react-native-screens';
 import BottomTabs from './src/navigation/BottomTabs';
-
 import SplashScreen from './src/screens/SplashScreen';
 import OnboardingScreen from './src/screens/onboarding/OnboardingScreen';
 import GetStartedScreen from './src/screens/GetStartedScreen';
@@ -32,66 +31,114 @@ import VendorProfile from './src/screens/vendor/VendorProfile';
 import AdmninSignIn from './src/screens/admin/AdminSignIn';
 import AdminDashboard from './src/screens/admin/AdminDashboard';
 import ScholarshipDetails from './src/screens/scholarships/ScholarshipDetails';
+import Toast from 'react-native-toast-message';
+import { AuthProvider } from './src/context/AuthContext';
+import { ProfileProvider } from './src/context/ProfileContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { 
+  View, 
+  ActivityIndicator, 
+} from 'react-native';
+
 enableScreens();
 
 const Stack = createNativeStackNavigator();
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+ const [userToken, setUserToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  return (
-    <GestureHandlerRootView style={styles.root}>
-      <SafeAreaProvider>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{ headerShown: false }}
-            initialRouteName="Splash"
-          >
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            <Stack.Screen name="GetStarted" component={GetStartedScreen} />
-            <Stack.Screen name="SignIn" component={SignInScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen name="Otp" component={Otp} />
-            <Stack.Screen name="VendorSetup" component={VendorSetup} />
-            <Stack.Screen name="forgotPassword" component={forgotPassword} />
-            <Stack.Screen name="CodeVerification" component={codeVerify} />
-            <Stack.Screen
-              name="PersonalIdentity"
-              component={personalIdentity}
+  useEffect(() => {
+    checkToken();
+  }, []);
+
+  const checkToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('@auth_token');
+      setUserToken(token);
+    } catch (error) {
+      console.error('Error checking token:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Show loading screen
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#03A2D5" />
+      </View>
+    );
+  }
+   return (
+    <AuthProvider>
+      <ProfileProvider>
+        <GestureHandlerRootView style={styles.root}>
+          <SafeAreaProvider>
+            <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+            <NavigationContainer>
+              <Stack.Navigator
+                screenOptions={{ headerShown: false }}
+                initialRouteName={userToken ? "MainTabs" : "Splash"}
+              >
+                {/* Public Routes - No authentication needed */}
+                <Stack.Screen name="Splash" component={SplashScreen} />
+                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                <Stack.Screen name="GetStarted" component={GetStartedScreen} />
+                <Stack.Screen name="SignIn" component={SignInScreen} />
+                <Stack.Screen name="SignUp" component={SignUpScreen} />
+                <Stack.Screen name="Otp" component={Otp} />
+                <Stack.Screen name="forgotPassword" component={forgotPassword} />
+                <Stack.Screen name="CodeVerification" component={codeVerify} />
+                <Stack.Screen name="AdminSignIn" component={AdmninSignIn} />
+                
+                {/* Protected Routes - Require authentication */}
+                {userToken && (
+                  <>
+                    <Stack.Screen name="PersonalIdentity" component={personalIdentity} />
+                    <Stack.Screen name="EduStatus" component={eduStatus} />
+                    <Stack.Screen name="Financial" component={Financial} />
+                    <Stack.Screen name="Interest" component={InterestGoal} />
+                    <Stack.Screen name="Residency" component={Residency} />
+                    <Stack.Screen name="QuickApply" component={QuickApply} />
+                    <Stack.Screen name="Notification" component={Notification} />
+                    <Stack.Screen name="Congratulations" component={Congratulations} />
+                    <Stack.Screen name="MainTabs" component={BottomTabs} />
+                    <Stack.Screen name="ScholarshipDetails" component={ScholarshipDetails} />
+                    <Stack.Screen name="VendorDashboard" component={vendor} />
+                    <Stack.Screen name="CreateListing" component={CreateListing} />
+                    <Stack.Screen name="ManageListing" component={ManageListing} />
+                    <Stack.Screen name="VendorProfile" component={VendorProfile} />
+                    <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+                    <Stack.Screen name="VendorSetup" component={VendorSetup} />
+                  </>
+                )}
+              </Stack.Navigator>
+            </NavigationContainer>
+            <Toast 
+              position="top" 
+              topOffset={50}
+              visibilityTime={3000}
+              autoHide={true}
             />
-            <Stack.Screen name="EduStatus" component={eduStatus} />
-            <Stack.Screen name="Financial" component={Financial} />
-            <Stack.Screen name="Interest" component={InterestGoal} />
-            <Stack.Screen name="Residency" component={Residency} />
-            <Stack.Screen name="QuickApply" component={QuickApply} />
-            <Stack.Screen name="Notification" component={Notification} />
-            <Stack.Screen name="Congratulations" component={Congratulations} />
-
-            {/* Main app with tabs */}
-            <Stack.Screen name="MainTabs" component={BottomTabs} />
-
-            <Stack.Screen name="ScholarshipDetails" component={ScholarshipDetails} />
-
-            {/* vendor flow */}
-            <Stack.Screen name="VendorDashboard" component={vendor} />
-            <Stack.Screen name="CreateListing" component={CreateListing} />
-            <Stack.Screen name="ManageListing" component={ManageListing} />
-            <Stack.Screen name="VendorProfile" component={VendorProfile} />
-            {/* Amin Flow */}
-            <Stack.Screen name="AdminSignIn" component={AdmninSignIn} />
-            <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+          </SafeAreaProvider>
+        </GestureHandlerRootView>
+      </ProfileProvider>
+    </AuthProvider>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -15,6 +15,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Icon } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
+import { FireApi } from '../../utils/FireApi';
 
 const StudentPerk = () => {
     const navigation = useNavigation()
@@ -25,6 +26,8 @@ const StudentPerk = () => {
         { id: 2, name: 'Food & Dining', icon: 'hamburger' },
         { id: 3, name: 'Tech Discounts', icon: 'laptop' },
     ];
+
+   
 
     return (
         <ScrollView style={styles.container}>

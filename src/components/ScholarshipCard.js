@@ -1,57 +1,76 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const ScholarshipCard = ({ title, amount, deadline, matched, type, tags }) => (
-  <View style={styles.card}>
-    {/* Top Row: Heart + Badges */}
-    <View style={styles.cardTopRow}>
-      <Icon name="heart" size={22} color="#FF5F5F" />
+const ScholarshipCard = ({ title, amount, deadline, matched, type, tags, scholarshipData }) => {
+  const navigation = useNavigation();
+  
+  return (
+    <View style={styles.card}>
+      {/* Top Row: Heart + Badges */}
+      <View style={styles.cardTopRow}>
+        <Icon name="heart" size={22} color="#FF5F5F" />
 
-      <View style={styles.badgeRow}>
-        <View style={[styles.badge, { backgroundColor: '#12DB00' }]}>
-          <Text style={styles.badgeText}>{matched}% Matched</Text>
-        </View>
+        <View style={styles.badgeRow}>
+          <View style={[styles.badge, { backgroundColor: '#12DB00' }]}>
+            <Text style={styles.badgeText}>{matched}% Matched</Text>
+          </View>
 
-        <View
-          style={[
-            styles.badge,
-            { backgroundColor: type === 'featured' ? '#FFC947' : '#03A2D5' },
-          ]}
-        >
-          <Text style={styles.badgeText}>
-            {type === 'featured' ? 'Featured' : 'New'}
-          </Text>
+          <View
+            style={[
+              styles.badge,
+              { backgroundColor: type === 'featured' ? '#FFC947' : '#03A2D5' },
+            ]}
+          >
+            <Text style={styles.badgeText}>
+              {type === 'featured' ? 'Featured' : 'New'}
+            </Text>
+          </View>
         </View>
       </View>
+
+      {/* Title + Amount */}
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.amount}>${amount}</Text>
+      <Text style={styles.deadline}>Deadline: {deadline}</Text>
+
+      {/* Tags */}
+      <View style={styles.tagrow}>
+        {tags.map((tag, index) => (
+          <View key={index} style={styles.tag}>
+            <Text style={styles.tagText}>{tag}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Buttons Row */}
+      <View style={styles.actionRow}>
+        <TouchableOpacity>
+          <Icon name="bookmark-outline" size={28} color="#03A2D5" />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.applyBtn} 
+          onPress={() => navigation.navigate('ScholarshipDetails', {
+            scholarship: {
+              title,
+              amount,
+              deadline,
+              matched,
+              type,
+              tags,
+              // Pass full scholarship data if available
+              ...scholarshipData
+            }
+          })}
+        >
+          <Text style={styles.applyText}>Learn More</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-
-    {/* Title + Amount */}
-    <Text style={styles.cardTitle}>{title}</Text>
-    <Text style={styles.amount}>${amount}</Text>
-    <Text style={styles.deadline}>Deadline: {deadline}</Text>
-
-    {/* Tags */}
-    <View style={styles.tagrow}>
-      {tags.map((tag, index) => (
-        <View key={index} style={styles.tag}>
-          <Text style={styles.tagText}>{tag}</Text>
-        </View>
-      ))}
-    </View>
-
-    {/* Buttons Row */}
-    <View style={styles.actionRow}>
-      <TouchableOpacity>
-        <Icon name="bookmark-outline" size={28} color="#03A2D5" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.applyBtn}>
-        <Text style={styles.applyText}>Learn More</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+  );
+};
 
 export default ScholarshipCard;
 

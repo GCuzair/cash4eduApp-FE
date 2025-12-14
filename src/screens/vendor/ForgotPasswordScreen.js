@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,16 +9,77 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Toast from 'react-native-toast-message';
+import { FireApi } from '../../utils/FireApi';
 
 const ForgotPasswordScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSendCode = async () => {
+    if (!email) {
+      Toast.show({
+        type: 'error',
+        text1: 'Email Required',
+        text2: 'Please enter your email address',
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Email',
+        text2: 'Please enter a valid email',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        email: email.trim(),
+      };
+
+      const response = await FireApi('forgot-password', 'POST', {}, payload);
+
+      if (!response) return;
+
+      if (response.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Code Sent',
+          text2: response.message || 'Verification code sent to your email',
+        });
+
+        navigation.navigate('CodeVerification', { email: email.trim() });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed',
+          text2: response.message || 'Unable to send code',
+        });
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Something went wrong',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <LinearGradient
-      colors={['#051622', '#000000']}
-      style={{ flex: 1 }}
-    >
+    <LinearGradient colors={['#051622', '#000000']} style={{ flex: 1 }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -28,30 +89,25 @@ const ForgotPasswordScreen = ({ navigation }) => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Gradient Header Glow */}
           <LinearGradient
             colors={['#51E3FC', '#03A2D5', '#021E38', '#000']}
             style={styles.gradientTop}
           />
 
-          {/* Back Icon */}
           <TouchableOpacity style={styles.backIcon} onPress={() => navigation.goBack()}>
             <Icon name="arrow-back-circle-outline" size={38} color="#fff" />
           </TouchableOpacity>
 
-          {/* Logo */}
           <Image
             source={require('../../assets/images/Logo2.png')}
             style={styles.logo}
           />
 
-          {/* Title Section */}
           <Text style={styles.title}>Forgot Password?</Text>
           <Text style={styles.subtitle}>
-            Enter your email and we’ll send a 4-digit verification code instantly.
+            Enter your email and we'll send a 4-digit verification code instantly.
           </Text>
 
-          {/* Form */}
           <View style={styles.formBox}>
             <Text style={styles.label}>Email address*</Text>
             <TextInput
@@ -60,19 +116,25 @@ const ForgotPasswordScreen = ({ navigation }) => {
               placeholderTextColor="#9E9E9E"
               keyboardType="email-address"
               autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+              editable={!loading}
             />
           </View>
 
-          {/* Button */}
           <TouchableOpacity
-            style={styles.nextBtn}
+            style={[styles.nextBtn, loading && styles.disabledBtn]}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('CodeVerification')}
+            onPress={handleSendCode}
+            disabled={loading}
           >
-            <Text style={styles.nextText}>Send Code</Text>
+            {loading ? (
+              <ActivityIndicator color="#03A2D5" />
+            ) : (
+              <Text style={styles.nextText}>Send Code</Text>
+            )}
           </TouchableOpacity>
 
-          {/* Footer */}
           <Text style={styles.footer}>
             Already have an account?{' '}
             <Text
@@ -122,7 +184,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     marginTop: 15,
-    
   },
 
   title: {
@@ -178,6 +239,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.6,
     shadowRadius: 10,
     elevation: 10,
+  },
+
+  disabledBtn: {
+    opacity: 0.7,
   },
 
   nextText: {

@@ -9,9 +9,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
+import {FireApi} from '../../utils/FireApi';
 
 const SignUpScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,6 +23,98 @@ const SignUpScreen = ({ navigation }) => {
     email: true,
     app: false,
   });
+  const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+    fullName: '',
+    yearOfBirth: '',
+    email: '',
+    password: '',
+  });
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSignUp = async () => {
+    if (!formData.fullName || !formData.yearOfBirth || !formData.email || !formData.password) {
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Please fill all required fields',
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Email',
+        text2: 'Please enter a valid email address',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+     try {
+    const requestData = {
+      name: formData.fullName,
+      yearOfBirth: formData.yearOfBirth,
+      email: formData.email,
+      password: formData.password,
+      contactMethods: contactMethods
+    };
+
+    const response = await FireApi(
+      'create-user',
+      'POST',
+      {},
+      requestData
+    );
+    
+    if (response && response.success === true) {
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: response.message || 'OTP sent to your email',
+      });
+      
+      navigation.navigate('Otp', { 
+        email: formData.email,
+        fullName: formData.fullName 
+      });
+    } else {
+      // Don't navigate - show error
+      Toast.show({
+        type: 'error',
+        text1: 'Sign Up Failed',
+        text2: response?.message || 'Unable to create account',
+      });
+    }
+  } catch (error) {
+    console.error('Sign up error:', error);
+    Toast.show({
+      type: 'error',
+      text1: 'Network Error',
+      text2: 'Please check your connection and try again',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+  if (loading) {
+    return (
+      <LinearGradient colors={['#051622', '#000000']} style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#03A2D5" />
+        <Text style={styles.loadingText}>Creating your account...</Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient colors={['#051622', '#000000']} style={{ flex: 1 }}>
@@ -65,6 +160,8 @@ const SignUpScreen = ({ navigation }) => {
                 style={styles.input}
                 placeholder="Enter your full name"
                 placeholderTextColor="#aaa"
+                value={formData.fullName}
+                onChangeText={(text) => handleInputChange('fullName', text)}
               />
 
               <Text style={styles.label}>Year of birth*</Text>
@@ -73,6 +170,8 @@ const SignUpScreen = ({ navigation }) => {
                 placeholder="DD/MM/YYYY"
                 placeholderTextColor="#aaa"
                 keyboardType="numeric"
+                value={formData.yearOfBirth}
+                onChangeText={(text) => handleInputChange('yearOfBirth', text)}
               />
 
               <Text style={styles.label}>Email address*</Text>
@@ -82,6 +181,8 @@ const SignUpScreen = ({ navigation }) => {
                 placeholderTextColor="#aaa"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                value={formData.email}
+                onChangeText={(text) => handleInputChange('email', text)}
               />
 
               <Text style={styles.label}>Password*</Text>
@@ -91,6 +192,8 @@ const SignUpScreen = ({ navigation }) => {
                   placeholder="Enter your password"
                   placeholderTextColor="#aaa"
                   secureTextEntry={!showPassword}
+                  value={formData.password}
+                  onChangeText={(text) => handleInputChange('password', text)}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -140,9 +243,12 @@ const SignUpScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.nextBtn}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('Otp')}
+              onPress={handleSignUp}
+              disabled={loading}
             >
-              <Text style={styles.nextText}>Next</Text>
+              <Text style={styles.nextText}>
+                {loading ? 'Creating Account...' : 'Next'}
+              </Text>
             </TouchableOpacity>
 
             {/* Footer */}
@@ -158,6 +264,7 @@ const SignUpScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <Toast />
     </LinearGradient>
   );
 };
@@ -284,5 +391,16 @@ const styles = StyleSheet.create({
   link: {
     color: '#fff',
     fontWeight: '600',
+  },
+  // Loading styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 20,
+    fontSize: 16,
   },
 });

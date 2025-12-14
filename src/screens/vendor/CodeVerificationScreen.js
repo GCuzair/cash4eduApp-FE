@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,33 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Toast from 'react-native-toast-message';
+import { FireApi } from '../../utils/FireApi';
 
-const CodeVerificationScreen = ({ navigation }) => {
+const CodeVerificationScreen = ({ navigation, route }) => {
+  const { email } = route.params || {};
   const [code, setCode] = useState(['', '', '', '']);
+  const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
   const inputs = useRef([]);
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0 && !canResend) {
+      interval = setInterval(() => {
+        setTimer(prev => prev > 1 ? prev - 1 : 0);
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [timer, canResend]);
 
   const handleInput = (text, index) => {
     if (/^[0-9]$/.test(text)) {
@@ -25,7 +45,7 @@ const CodeVerificationScreen = ({ navigation }) => {
 
       // Auto-focus next input
       if (index < 3) {
-        inputs.current[index + 1].focus();
+        inputs.current[index + 1]?.focus();
       }
     } else if (text === '') {
       const newCode = [...code];
@@ -34,11 +54,113 @@ const CodeVerificationScreen = ({ navigation }) => {
     }
   };
 
+  const handleVerify = async () => {
+    const otpCode = code.join('');
+
+    if (otpCode.length !== 4) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Code',
+        text2: 'Please enter all 4 digits',
+      });
+      return;
+    }
+
+    if (!email) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Email not found',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        email: email.trim(),
+        otp: otpCode,
+      };
+
+      const response = await FireApi('verify-otp', 'POST', {}, payload);
+
+      if (!response) return;
+
+      if (response.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Verified!',
+          text2: response.message || 'Code verified successfully',
+        });
+
+        // navigation.navigate('ResetPassword', { email });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Verification Failed',
+          text2: response.message || 'Invalid code',
+        });
+      }
+    } catch (error) {
+      console.error('Verify error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Something went wrong',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!email || !canResend) return;
+
+    setResendLoading(true);
+
+    try {
+      const payload = {
+        email: email.trim(),
+      };
+
+      const response = await FireApi('forgot-password', 'POST', {}, payload);
+
+      if (!response) return;
+
+      if (response.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Code Sent',
+          text2: response.message || 'New code sent to your email',
+        });
+
+        // Reset timer and code
+        setTimer(60);
+        setCanResend(false);
+        setCode(['', '', '', '']);
+        inputs.current[0]?.focus();
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed',
+          text2: response.message || 'Unable to resend code',
+        });
+      }
+    } catch (error) {
+      console.error('Resend error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to resend',
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   return (
-    <LinearGradient
-      colors={['#051622', '#000000']}
-      style={{ flex: 1 }}
-    >
+    <LinearGradient colors={['#051622', '#000000']} style={{ flex: 1 }}>
       <LinearGradient
         colors={['#51E3FC', '#03A2D5', '#021E38', '#000']}
         style={styles.gradientTop}
@@ -63,7 +185,10 @@ const CodeVerificationScreen = ({ navigation }) => {
 
           <View style={styles.whiteBox}>
             <Text style={styles.title}>Enter your code</Text>
-            <Text style={styles.subtitle}>We sent a code to your email</Text>
+            <Text style={styles.subtitle}>
+              We sent a code to: {'\n'}
+              <Text style={{ color: '#03A2D5', fontWeight: '600' }}>{email}</Text>
+            </Text>
 
             <View style={styles.codeContainer}>
               {code.map((value, index) => (
@@ -77,25 +202,35 @@ const CodeVerificationScreen = ({ navigation }) => {
                   onChangeText={(text) => handleInput(text, index)}
                   returnKeyType="next"
                   autoFocus={index === 0}
+                  editable={!loading}
                 />
               ))}
             </View>
 
             <Text style={styles.resendText}>
-              Didn’t receive the code?{' '}
-              <Text
-                style={styles.resendLink}
-                onPress={() => {
-                  // Handle resend code
-                  // console.log('Resend code');
-                }}
-              >
-                Click to resend
-              </Text>
+              Didn't receive the code?{' '}
+              <TouchableOpacity onPress={handleResendCode} disabled={!canResend || resendLoading}>
+                {resendLoading ? (
+                  <ActivityIndicator size="small" color="#03A2D5" />
+                ) : (
+                  <Text style={[styles.resendLink, !canResend && styles.disabledLink]}>
+                    {canResend ? 'Click to resend' : `Resend in ${timer}s`}
+                  </Text>
+                )}
+              </TouchableOpacity>
             </Text>
 
-            <TouchableOpacity style={styles.nextBtn} activeOpacity={0.8}>
-              <Text style={styles.nextText}>Continue</Text>
+            <TouchableOpacity
+              style={[styles.nextBtn, loading && styles.disabledBtn]}
+              onPress={handleVerify}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.nextText}>Continue</Text>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -184,15 +319,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   resendLink: {
-    color: '#000',
+    color: '#03A2D5',
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  disabledLink: {
+    color: '#999',
+    textDecorationLine: 'none',
   },
   nextBtn: {
     backgroundColor: '#03A2D5',
     paddingVertical: 13,
     borderRadius: 10,
     width: '80%',
+  },
+  disabledBtn: {
+    opacity: 0.7,
   },
   nextText: {
     color: '#fff',

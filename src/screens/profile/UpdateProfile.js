@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import EducationScreen from '../student/EducationStatusScreen';
 import FinancialScreen from '../student/FinancialInformationScreen';
 import InterestGoal from '../student/InterestsGoalsScreen';
 import Residency from '../student/ResidencyEligibilityScreen';
+import { ProfileContext } from '../../context/ProfileContext';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,7 @@ const TABS = [
 
 const UpdateProfileScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('personal');
-
+  const {userInfo, userProfile} = useContext(ProfileContext);
   const renderTabContent = () => {
     switch (activeTab) {
       case 'personal':
@@ -124,12 +125,13 @@ const UpdateProfileScreen = ({ navigation }) => {
 
           {/* Profile Info */}
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.profileName}>Aroma Tariq</Text>
+            <Text style={styles.profileName}>{userInfo?.full_name}</Text>
             <Text style={styles.profileText}>
-              University of California Berkeley
+              University of {userProfile?.institution?.name}
             </Text>
             <Text style={styles.profileText}>
-              Computer Science . Level 3 Scholar
+              {userProfile?.fieldOfStudy?.name} 
+              collegeType: {userProfile?.collegeType?.type_name}
             </Text>
           </View>
 

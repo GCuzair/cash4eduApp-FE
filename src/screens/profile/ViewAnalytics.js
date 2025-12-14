@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,12 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { LineChart, BarChart } from "react-native-chart-kit";
+import { ProfileContext } from "../../context/ProfileContext";
 
 const { width } = Dimensions.get("window");
 
 const ViewAnalyticsScreen = ({ navigation }) => {
+  const {userInfo} = useContext(ProfileContext);
   return (
     <View style={styles.container}>
       {/* Fixed Header */}
@@ -42,7 +44,7 @@ const ViewAnalyticsScreen = ({ navigation }) => {
               style={styles.profileImage}
             />
             <View style={styles.headerInfo}>
-              <Text style={styles.userName}>Aroma Tariq</Text>
+              <Text style={styles.userName}>{userInfo?.full_name}</Text>
               <View style={styles.levelBadge}>
                 <Text style={styles.levelText}>Level 3 Learner</Text>
               </View>
