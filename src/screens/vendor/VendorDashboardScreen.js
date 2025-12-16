@@ -1,163 +1,242 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native';
+// Retaining original imports for compatibility
 import { TextInput } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-// 1. IMPORT THE ICON COMPONENT
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import LinearGradient from 'react-native-linear-gradient';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
+// Removed unused icons (AntDesign, Ionicons) for cleanup
 
 // Get screen width for responsive layout
 const { width } = Dimensions.get('window');
 
-// --- Component for the Dashboard Cards ---
-const DashboardCard = ({ title, value, iconType, backgroundColor, }) => (
-    
-    
-    <View style={[styles.card, { backgroundColor }]}>
-        <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>{title}</Text>
-            {/* 2. REPLACING EMOJIS WITH ICON COMPONENTS */}
-            {iconType === 'clipboard' && <Icon name="clipboard-text-outline" size={24} color="#FFF" />}
-            {iconType === 'emoticon' && <Icon name="emoticon-happy-outline" size={24} color="#FFF" />}
-            {iconType === 'application' && <Text style={styles.cardIconText}>A</Text>}
-            {iconType === 'click' && <Icon name="cursor-default-click-outline" size={24} color="#FFF" />}
-        </View>
-        <Text style={styles.cardValue}>{value}</Text>
-    </View>
-);
+// Helper function to bold the listing title (text within quotes)
+const getFormattedTitle = (text) => {
+    // Find the content inside the first pair of single or double quotes
+    const match = text.match(/('([^']+)'|"([^"]+)")/);
+    if (!match) return <Text style={styles.cardText}>{text}</Text>;
 
-// --- Placeholder for the Chart (No change needed here) ---
-const EngagementChart = () => (
-    <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Engagement Trends</Text>
-        <View style={styles.chartPlaceholder}>
-            <Text style={styles.chartPlaceholderText}>Chart Placeholder</Text>
-            <View style={styles.chartLine} />
-            <View style={styles.chartTooltip}>
-                <Text style={styles.tooltipText}>Views: 7,890</Text>
-                <Text style={styles.tooltipText}>Clicks: 1,320</Text>
+    const listingName = match[0];
+    const parts = text.split(listingName);
+
+    return (
+        <Text style={styles.cardText}>
+            {parts[0]}
+            <Text style={styles.boldText}>{listingName}</Text>
+            {parts[1]}
+        </Text>
+    );
+};
+
+// --- Component for Recent Activity Cards (MATCHING IMAGE DESIGN) ---
+const ActivityCard = ({ title, time, iconName }) => {
+    return (
+        <LinearGradient
+            // Define the dark blue gradient colors
+            colors={['#03a2d5', '#000000ff']}
+            // Define the gradient direction (e.g., top-left to bottom-right)
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            // 2. We use the original cardContainer styling for size/layout
+            style={styles.cardContainer}
+        >
+            {/* Icon Area */}
+            <View style={styles.iconWrapper}>
+                {/* iconName is expected to be a MaterialCommunityIcons name */}
+                <Icon name={iconName} size={30} color="#FFFFFF" />
+            </View>
+
+            {/* Text Content */}
+            <View style={styles.textContainer}>
+                {/* Apply formatting to bold the listing name/key phrase */}
+                {getFormattedTitle(title)}
+                <Text style={styles.timeText}>{time}</Text>
+            </View>
+        </LinearGradient>
+    );
+};
+
+// --- ProgressBar Component ---
+const ProgressBar = ({ progress = 80 }) => {
+    const fillWidth = `${progress}%`;
+
+    return (
+        <View style={styles.containerLine}>
+            <Text style={styles.label}>{progress}%</Text>
+            <View style={styles.track}>
+                <LinearGradient
+                    colors={['#51e3fc', '#03a2d5']}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={[styles.fill, { width: fillWidth }]}
+                />
             </View>
         </View>
-        <View style={styles.chartXAxis}>
-            {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, index) => (
-                <Text key={index} style={styles.chartXAxisLabel}>{month}</Text>
-            ))}
-        </View>
-    </View>
-);
-
-// --- Component for Recent Activity Items ---
-const ActivityItem = ({ iconName, title, subtitle }) => ( // Use iconName instead of icon
-    <View style={styles.activityItem}>
-        <View style={styles.activityIconBackground}>
-            {/* 3. USING ICON IN ACTIVITY LIST */}
-            <Icon name={iconName} size={20} color="#FFF" />
-        </View>
-        <View style={styles.activityTextContent}>
-            <Text style={styles.activityTitle}>{title}</Text>
-            <Text style={styles.activitySubtitle}>{subtitle}</Text>
-        </View>
-    </View>
-);
+    );
+};
 
 // --- Main Screen Component ---
 const VendorDashboardScreen = () => {
-    const navigation=useNavigation();
-    // Data for the cards (no change)
-    const dashboardData = [
-        { title: 'Total Listings', value: '124', iconType: 'clipboard', backgroundColor: '#1A3350' },
-        { title: 'Total Views', value: '28,500', iconType: 'emoticon', backgroundColor: '#1A3350' },
-        { title: 'Total Applications', value: '4,120', iconType: 'application', backgroundColor: '#1A3350' },
-        { title: 'Total Clicks', value: '4,120', iconType: 'click', backgroundColor: '#1A3350' },
+    const navigation = useNavigation();
+    const progress = 80;
+
+    // Recent activity data matching the new design and structure
+    const recentActivities = [
+        {
+            id: 1,
+            iconName: 'layers-triple-outline', // Used for views/listing stack icon
+            title: 'Your Listing "Tech Scholarship" got 15 new views this week',
+            time: '3 Hours ago',
+        },
+        {
+            id: 2,
+            iconName: 'hand-pointing-up', // Used for new applicant/tap icon
+            title: 'New Applicant for "Design Fellowship"',
+            time: '3 Days ago',
+        },
+        {
+            id: 3,
+            iconName: 'clock-time-four-outline', // Used for expiration/clock icon
+            title: 'Your Listing for "Creative Arts Grant" expires in 7 days',
+            time: '3 Hours ago',
+        },
     ];
 
     return (
         <View style={styles.container}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-
-                {/* Header Section */}
-                <View style={styles.header}>
-                    {/* 'V' Icon Placeholder */}
+            <View style={styles.header}>
+                <TouchableOpacity onPress={()=> navigation.navigate('VendorProfile')}>
                     <View style={styles.headerIconPlaceholder}>
                         <Text style={styles.headerIconText}>V</Text>
                     </View>
-
-                    <Image
-                        source={require('../../assets/images/Logo.png')} // path to your logo file
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
-
-                    {/* 4. REPLACING BELL EMOJI */}
-                    <Icon name="bell-outline" size={28} color="#FFF" />
-                </View>
-
-                {/* Search Bar Placeholder */}
-                <View style={styles.searchBar}>
-                    <TextInput style={styles.searchText}>Search scholarships</TextInput>
-
-                    {/* 5. REPLACING SEARCH AND MIC EMOJIS */}
-                    <Icon name="magnify" size={24} color="#FFF" style={styles.searchBarIcon} />
-                    <Icon name="microphone-outline" size={24} color="#FFF" />
-                </View>
-
-                {/* Dashboard Title (no change) */}
-                <View style={styles.dashboardTitleContainer}>
-                    <Text style={styles.dashboardTitle}>Vendor Dashboard</Text>
-                    <Text style={styles.dashboardSubtitle}>
-                        Overview of your listing and engagement performance
-                    </Text>
-                </View>
-
-                {/* Dashboard Cards Grid (no change) */}
-                <View style={styles.cardGrid}>
-                    {dashboardData.map((data, index) => (
-                        <DashboardCard
-                            key={index}
-                            title={data.title}
-                            value={data.value}
-                            backgroundColor={data.backgroundColor}
-                            iconType={data.iconType}
-                        />
-                    ))}
-                </View>
-
-                {/* Engagement Trends Chart (no change) */}
-                <EngagementChart />
-
-                {/* Quick Actions (no change) */}
-                <Text style={styles.sectionTitle}>Quick Actions</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickActionsContainer}>
-                    <TouchableOpacity style={styles.actionButtonPrimary} onPress={()=>{navigation.navigate('CreateListing')}}>
-                        <Text style={styles.actionButtonPrimaryText}>Create New Listing</Text>
+                </TouchableOpacity>
+                <Image source={require('../../assets/images/Logo.png')} style={styles.logo}/>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <Icon name="bell-outline" size={22} color="#FFF" />
+                    <TouchableOpacity onPress={()=>navigation.navigate('Setting')}>
+                    <Ionicons name="settings" size={22} color="#FFF" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButtonSecondary}>
-                        <Text style={styles.actionButtonSecondaryText}>Edit Profile</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButtonSecondary}>
-                        <Text style={styles.actionButtonSecondaryText}>Upgrade Plan</Text>
-                    </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* Dashboard Title */}
+            <View style={styles.dashboardTitleContainer}>
+                <Text style={styles.dashboardTitle}>Vendor Dashboard</Text>
+                <Text style={styles.dashboardSubtitle}>
+                    Your profile is {progress}% complete
+                </Text>
+                <Text style={styles.dashboardSubtitle}>
+                    Complete your profile to boost visibility
+                </Text>
+            </View>
+
+            {/* Progress Bar */}
+            <ProgressBar progress={progress} />
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View>
+                    <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <TouchableOpacity style={styles.btn1} onPress={() => navigation.navigate('CreateListing')}>
+                            <AntDesign name='plus' size={18} color='white' style={{ marginTop: 1 }} />
+                            <Text style={styles.btnTxt}>Create New Listing</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.btn2}>
+                            <FontAwesome5 name='pen' size={18} color='white' style={{ marginTop: 1 }} />
+                            <Text style={styles.btnTxt}>Edit Profile</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
+
+                {/* Snapshot Cards Section */}
+                <View style={{ marginTop: 25 }}>
+                    <Text style={styles.sectionTitle}>Snapshot Cards</Text>
+                </View>
+
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContainer}
+                >
+                    {/* Active Listings Card */}
+                    <View style={styles.card}>
+                        <View style={styles.users}>
+                            <FontAwesome5 name="list-ul" size={18} color="#51e3fc" />
+                            <Text style={styles.cardTitle}>Active Listings</Text>
+                        </View>
+                        <Text style={styles.cardValue}>12</Text>
+                        <Text style={styles.cardSubText}>Currently live listings</Text>
+                    </View>
+
+                    {/* Pending Applications Card */}
+                    <View style={styles.card}>
+                        <View style={styles.users}>
+                            <MaterialIcons name="pending-actions" size={20} color="#7B61FF" />
+                            <Text style={styles.cardTitle}>Pending Applications</Text>
+                        </View>
+                        <Text style={styles.cardValue}>123</Text>
+                        <Text style={styles.scholarshipText}>Waiting for approval</Text>
+                    </View>
                 </ScrollView>
 
-                {/* Recent Activity (New prop: iconName) */}
-                <Text style={styles.sectionTitle}>Recent Activity</Text>
-                <View style={styles.activityList}>
-                    <ActivityItem
-                        iconName="file-multiple-outline" // Replaced 🗂️
-                        title="Your Listing 'Tech Scholarship' got 15 new views this week"
-                        subtitle="3 Hours ago"
-                    />
-                    <ActivityItem
-                        iconName="thumb-up-outline" // Replaced 👆
-                        title="New Applicant for 'Design Fellowship'"
-                        subtitle="3 Days ago"
-                    />
-                    <ActivityItem
-                        iconName="star-outline" // Replaced ⭐️
-                        title="Your profile rating increased to 4.5 stars"
-                        subtitle="1 Day ago"
-                    />
+                {/* Recent Activity Section - UPDATED DESIGN */}
+                <View style={styles.recentActivityContainer}>
+                    <View style={styles.recentActivityHeader}>
+                        <Text style={styles.sectionTitle}>Recent Activity</Text>
+                        <TouchableOpacity>
+                            <Text style={styles.viewAllText}>View All</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.activityList}>
+                        {recentActivities.map((activity) => (
+                            <ActivityCard
+                                key={activity.id}
+                                iconName={activity.iconName}
+                                title={activity.title}
+                                time={activity.time}
+                            />
+                        ))}
+                    </View>
                 </View>
 
+                <View style={styles.recentActivityContainer}>
+                    <View style={styles.innerNeedCont}>
+                        <View style={styles.iconBg}>
+                            <FontAwesome5
+                                name='question-circle'
+                                color='white' // This should work
+                                size={40}
+                                style={{ top: 15, left: 15 }}
+                            />
+                        </View>
+
+                        <View style={{ alignItems: 'center', }}>
+                            <Text style={styles.needTitle}>Need Help?</Text>
+                            <Text style={styles.needsubTitle}>Get assistance managing your listing and applications.</Text>
+                        </View>
+
+                        <TouchableOpacity style={styles.innerBtn}>
+                            <Text style={styles.innerBtntxt}>View FAQs</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.innerBtn}>
+                            <Text style={styles.innerBtntxt}>Contact Support</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <TouchableOpacity style={styles.lastBtn}>
+                    <AntDesign name='plus' size={18} color='white' style={{ marginTop: 1 }} />
+                    <Text style={styles.lastBtnTxt}>Create New Listing</Text>
+                </TouchableOpacity>
             </ScrollView>
         </View>
     );
@@ -165,26 +244,100 @@ const VendorDashboardScreen = () => {
 
 // --- Stylesheet ---
 const styles = StyleSheet.create({
+    logo: {
+        width: 80,
+        height: 80,
+        marginTop: 10
+    },
+    lastBtn: {
+        backgroundColor: '#51e3fc',
+        padding: 15,
+        flexDirection: 'row',
+        marginTop: 25,
+        width: '90%',
+        marginLeft: 15,
+        borderRadius: 10,
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+    },
+    lastBtnTxt: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    innerBtn: {
+        borderWidth: 1,
+        borderColor: '#51e3fc',
+        width: '90%',
+        alignItems: 'center',
+        marginTop: 20,
+        borderRadius: 10,
+        padding: 10,
+    },
+    innerBtntxt: {
+        color: '#51e3fc',
+        fontSize: 16,
+    },
+    innerNeedCont: {
+        alignItems: 'center'
+    },
+    iconBg: {
+        backgroundColor: '#03a2d5',
+        opacity: 0.3,
+        width: 70,
+        height: 70,
+        borderRadius: 80,
+        marginTop: 40
+    },
+    btn1: {
+        backgroundColor: '#0257a7',
+        width: '48%',
+        flexDirection: 'row',
+        gap: 3,
+        padding: 8,
+        borderRadius: 20
+    },
+    btn2: {
+        width: '48%',
+        flexDirection: 'row',
+        gap: 10,
+        padding: 8,
+        paddingHorizontal: 25,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'white'
+    },
+    btnTxt: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: 'white',
+        marginTop: 3
+    },
     container: {
         flex: 1,
         backgroundColor: '#000',
         paddingHorizontal: 15,
         paddingTop: 10,
     },
+    // Style for the bold text *inside* the card title
+    boldText: {
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+    },
 
-    // Header Styles
+    // Header Styles (from original code)
     header: {
         flexDirection: 'row',
-        // Adjusted to use space-between since we have the V-icon and the bell icon now
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 10,
-        // marginTop: 20,
     },
     headerIconPlaceholder: {
-        width: 35,
-        height: 35,
-        borderRadius: 17.5,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: '#1E90FF',
         justifyContent: 'center',
         alignItems: 'center',
@@ -194,49 +347,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
-
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#333',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 5,
-        marginTop: 15,
-        marginBottom: 30,
-    },
-    searchText: {
-        flex: 1,
-        color: '#AAA',
-        fontSize: 16,
-    },
-    logo: {
-        // marginTop: 10,
-        width: 110,
-        height: 80,
-    },
-    kIconPlaceholder: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        backgroundColor: '#6B8E23',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 15,
-    },
-    kIconText: {
-        color: '#FFF',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    // The following style is still useful for spacing the icons:
-    searchBarIcon: {
-        marginHorizontal: 5,
-    },
-
-    // Dashboard Title Styles (no change)
     dashboardTitleContainer: {
         marginBottom: 20,
+        marginTop: 20,
     },
     dashboardTitle: {
         color: '#FFF',
@@ -245,203 +358,141 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     dashboardSubtitle: {
-        color: '#BBB',
+        color: '#FFFFFF', // Adjusted to plain white for consistency
         fontSize: 14,
     },
 
-    // Card Grid Styles (no change)
-    cardGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-
-    // Individual Card Styles (no change to card, but old emoji styles are removed)
-    card: {
-        width: (width / 2) - 25,
-        height: 110,
-        borderRadius: 20,
-        padding: 10,
-        marginBottom: 20,
-        justifyContent: 'space-between',
-        backgroundColor: '#1A3350',
-        borderWidth:1,
-        borderColor: '#03a2d5',
-
-        // 💡 Outer shadow around the border
-        shadowColor: '#03a2d5',
-        shadowOffset: { width:0 , height: 0},
-        shadowOpacity: 0.9,
-        shadowRadius: 15,
-        elevation:10,
-
-        
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-    },
-    cardTitle: {
-        color: '#FFF',
-        fontSize: 15,
-        fontWeight: '900',
-        maxWidth: '80%',
-    },
-    cardValue: {
-        color: '#FFF',
-        fontSize: 40,
-        fontWeight: 'bold',
-    },
-    cardIconText: {
-        color: '#FFF',
-        fontSize: 24,
-        fontWeight: 'bold',
-        backgroundColor: 'transparent',
-
-    },
-
-    // Engagement Chart Styles (Placeholder) (no change)
-    chartContainer: {
-        backgroundColor: '#1A3350',
-        borderRadius: 15,
-        padding: 15,
-        marginBottom: 30,
-    },
-    chartTitle: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 15,
-    },
-    chartPlaceholder: {
-        height: 200,
-        backgroundColor: 'transparent',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        borderBottomWidth: 1,
-        borderLeftWidth: 1,
-        borderColor: '#444',
-    },
-    chartPlaceholderText: {
-        color: '#777',
-        fontSize: 16,
-        position: 'absolute',
-        top: 10,
-        left: 10,
-    },
-    chartLine: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: 2,
-        backgroundColor: '#1E90FF',
-        transform: [{ translateY: -100 }],
-        opacity: 0.7,
-    },
-    chartTooltip: {
-        position: 'absolute',
-        top: '40%',
-        left: '30%',
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        borderRadius: 5,
-        padding: 8,
-    },
-    tooltipText: {
-        color: '#FFF',
-        fontSize: 12,
-    },
-    chartXAxis: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 5,
+    // Progress Bar Styles (from original code)
+    containerLine: {
+        width: '100%',
         paddingHorizontal: 5,
+        marginBottom: 20,
     },
-    chartXAxisLabel: {
-        color: '#999',
-        fontSize: 10,
+    label: {
+        color: '#51e3fc',
+        fontSize: 14,
+        fontWeight: 'bold',
+        textAlign: 'right',
+        marginBottom: 5,
+    },
+    track: {
+        height: 15,
+        borderRadius: 8,
+        backgroundColor: '#3A3A58',
+        overflow: 'hidden',
+    },
+    fill: {
+        height: '100%',
+        backgroundColor: '#03a2d5',
+        borderRadius: 8,
     },
 
-    // Section Titles (no change)
+    // Section Title (from original code)
     sectionTitle: {
         color: '#FFF',
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: 10,
-        marginBottom: 15,
+        marginBottom: 10,
     },
 
-    // Quick Actions Styles (no change)
-    quickActionsContainer: {
-        flexDirection: 'row',
-        marginBottom: 30,
-    },
-    actionButtonPrimary: {
-        backgroundColor: '#03a2d5',
-        borderRadius: 22,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginRight: 10,
-    },
-    actionButtonPrimaryText: {
+    needTitle: {
         color: '#FFF',
         fontSize: 16,
         fontWeight: 'bold',
+        marginTop: 25,
+        marginBottom: 10,
     },
-    actionButtonSecondary: {
-        backgroundColor: '#333',
+    needsubTitle: {
+        color: 'white',
+        textAlign: 'center',
+    },
+    // Snapshot Cards (from original code)
+    scrollContainer: {
+        paddingVertical: 4,
+    },
+    card: {
+        backgroundColor: '#021e38',
+        borderRadius: 16,
+        padding: 20,
+        marginRight: 15,
+        width: 200,
+        justifyContent: 'center',
+    },
+    users: {
+        flexDirection: 'row',
+        gap: 8,
+        paddingBottom: 10,
+        width: '100%',
+    },
+    cardTitle: {
+        color: '#fff',
+        fontSize: 15,
+        marginBottom: 4,
+        fontWeight: 'bold',
+        marginTop: 2,
+    },
+    cardValue: {
+        color: '#fff',
+        fontSize: 29,
+        fontWeight: 'bold',
+    },
+    cardSubText: {
+        color: '#52e3fc',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    scholarshipText: {
+        color: '#7B61FF',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    recentActivityContainer: {
+        marginTop: 25,
+        backgroundColor: '#021e38',
         borderRadius: 20,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginRight: 10,
-        borderColor: '#555',
-    },
-    actionButtonSecondaryText: {
-        color: '#FFF',
-        fontSize: 16,
-    },
-
-    // Recent Activity Styles (activityIcon is now applied to the Icon component)
-    activityList: {
-        backgroundColor: '#1A3350',
-        borderRadius: 15,
         padding: 10,
-        marginBottom: 40,
-        
+
     },
-    activityItem: {
+    recentActivityHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    viewAllText: {
+        color: '#55aaff', // Light blue link color
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    activityList: {
+        gap: 12, // Spacing between individual cards
+        paddingVertical: 5,
+    },
+    cardContainer: { // Style for the individual activity card block
         flexDirection: 'row',
         alignItems: 'center',
+        borderRadius: 8,
         paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
+        paddingHorizontal: 15,
+        borderWidth: 1,
+        borderColor: '#ffffffff', // Subtle border color
     },
-    activityIconBackground: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#000',
-        justifyContent: 'center',
-        alignItems: 'center',
+    iconWrapper: {
         marginRight: 15,
+        // The icons themselves are white, matching the visual
     },
-    // Removed the fontSize from activityIcon style since it's now set directly on the <Icon> component.
-    // We can delete this or keep it empty if we want to retain the name.
-
-    activityTextContent: {
+    textContainer: {
         flex: 1,
     },
-    activityTitle: {
-        color: '#FFF',
+    cardText: {
+        color: '#FFFFFF',
         fontSize: 15,
-        fontWeight: '600',
-        marginBottom: 2,
+        lineHeight: 20,
     },
-    activitySubtitle: {
-        color: '#BBB',
-        fontSize: 12,
+    timeText: {
+        color: '#B0B0B0', // Lighter grey for the timestamp
+        fontSize: 13,
+        marginTop: 2,
     },
 });
 

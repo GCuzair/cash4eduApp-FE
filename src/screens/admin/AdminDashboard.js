@@ -1,264 +1,446 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Foundation from 'react-native-vector-icons/Foundation';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
-const { width } = Dimensions.get('window');
+const pendingActions = [
+  {
+    id: 1,
+    title: 'Vendor Applications',
+    subtitle: 'Pending review',
+    icon: 'file-export',
+    badge: 8,
+    badgeColor: '#ef4444', // red
+    buttonText: 'Review',
 
-const StatCard = ({ title, value, percent, icon }) => (
-  <View style={styles.statCard}>
-    <View style={styles.statHeader}>
-      <Icon name={icon} size={22} color="#51E3FC" />
-      <Text style={styles.statTitle}>{title}</Text>
-    </View>
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statChange}>{percent}</Text>
-  </View>
-);
+  },
+  {
+    id: 2,
+    title: 'Scholarship Listing',
+    subtitle: 'Need approval',
+    icon: 'clipboard-list',
+    badge: 12,
+    badgeColor: '#12db00', // green
+    buttonText: 'Approve',
+  },
+  {
+    id: 3,
+    title: 'Educational Videos',
+    subtitle: 'Quality review',
+    icon: 'video',
+    badge: 5,
+    badgeColor: '#FFc947', // yellow/orange
+    buttonText: 'Review',
+  },
+  {
+    id: 4,
+    title: 'Student Reports',
+    subtitle: 'Requires attention',
+    icon: 'file-invoice',
+    badge: 3,
+    badgeColor: '#a855f7', // purple
+    buttonText: 'View',
+  },
+];
 
-const AdminDashboardScreen = () => {
-  const chartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        data: [10, 40, 25, 55, 45, 60, 75],
-        strokeWidth: 3,
-        color: (opacity = 1) => `rgba(3,162,213,${opacity})`,
-      },
-    ],
-  };
-
+const DashboardScreen = () => {
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Admin Dashboard</Text>
-          <View style={styles.avatarPlaceholder}>
-            <Image
-              source={{ uri: 'https://i.pravatar.cc/150?img=5' }}
-              style={styles.avatarImage}
-            />
-          </View>
-        </View>
-
-        {/* Top Cards */}
-        <View style={styles.cardsRow}>
-          <StatCard title="Total Users" value="12,450" percent="+3.5% from last week" icon="account-group" />
-          <StatCard title="Active Students" value="8,230" percent="+2.1% from last week" icon="school" />
-          <StatCard title="Verified Vendors" value="1,200" percent="+1.4% from last week" icon="account" />
-          <StatCard title="Referrals" value="953" percent="+5.2% from last week" icon="account-multiple-plus" />
-        </View>
-
-        {/* Chart Section */}
-        <View style={styles.chartContainer}>
-          <View style={styles.chartHeader}>
-            <Text style={styles.chartTitle}>User Growth Over Time</Text>
-            <Icon name="calendar-week" size={20} color="#fff" />
-          </View>
-
-          <LineChart
-            data={chartData}
-            width={width - 55}
-            height={200}
-            chartConfig={{
-              backgroundGradientFrom: '#021E38',
-              backgroundGradientTo: '#000',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(81, 227, 252, ${opacity})`,
-              labelColor: () => '#888',
-              propsForDots: {
-                r: '4',
-                strokeWidth: '2',
-                stroke: '#03A2D5',
-              },
-            }}
-            bezier
-            style={styles.chartStyle}
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Image
+            source={require('../../assets/images/burger.png')}
+            style={styles.avatar}
           />
-        </View>
-
-        {/* Recent Activity & System Alerts */}
-        <View style={styles.alertContainer}>
-          <Text style={styles.sectionTitle}>Recent Activity & System Alerts</Text>
-
-          <View style={styles.alertItem}>
-            <Icon name="alert-circle-outline" size={20} color="#03A2D5" />
-            <Text style={styles.alertText}>5 new scholarships pending verification</Text>
+          <View style={styles.searchContainer}>
+            <Text style={styles.searchPlaceholder}>Search</Text>
+            <Ionicons name="search" size={18} color="#aaa" style={{ marginLeft: 150 }} />
           </View>
-
-          <View style={styles.alertItem}>
-            <Icon name="close-circle-outline" size={20} color="#FF5C5C" />
-            <Text style={styles.alertText}>System error logged 2:45 AM</Text>
-          </View>
-
-          <View style={styles.alertItem}>
-            <Icon name="check-circle-outline" size={20} color="#00FF88" />
-            <Text style={styles.alertText}>Vendor ‘Tech4Youth’ verified successfully</Text>
-          </View>
-        </View>
-
-        {/* Buttons */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.btns}>
-            <Text style={styles.btnText}>View Scholarship Queue</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btns}>
-            <Text style={styles.btnText}>View Bug Logs</Text>
+          <TouchableOpacity>
+            <Ionicons name="notifications-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
 
-        {/* Admin Announcements */}
-        <View style={styles.announcementContainer}>
-          <Text style={styles.sectionTitle}>Admin Announcements</Text>
-          <Text style={styles.announcementText}>• System v2.5 launched new referral tracking added.</Text>
-          <Text style={styles.announcementText}>• Next maintenance window: 28 Oct, 2:00 AM PST.</Text>
+        <Text style={styles.welcomeText}>Welcome back, Admin</Text>
+        <Text style={styles.subtitle}>
+          Here’s what’s happening across Cash 4 Edu this week
+        </Text>
+        <Text style={styles.updateText}>
+          Last updated: Oct 29, 2025, 09:00 PST
+        </Text>
+      </View>
+
+      <ScrollView>
+        {/* Horizontal Stats */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          {/* Active Users Card */}
+          <View style={styles.card}>
+            <View style={styles.users}>
+              <FontAwesome5 name="user" size={18} color="#51e3fc" />
+              <Text style={styles.cardTitle}>Active Users</Text>
+            </View>
+            <Text style={styles.cardValue}>12,450</Text>
+            <Text style={styles.cardSubText}>+3.5% from last week</Text>
+          </View>
+
+          {/* Scholarship Card */}
+          <View style={styles.card}>
+            <View style={styles.users}>
+              <FontAwesome5 name="graduation-cap" size={18} color="#7B61FF" />
+              <Text style={styles.cardTitle}>Scholarship</Text>
+            </View>
+            <Text style={styles.cardValue}>820</Text>
+            <Text style={styles.scholarshipText}>+5 New</Text>
+          </View>
+        </ScrollView>
+
+        {/* Recent Activity Feed */}
+        <View style={styles.recentCont}>
+          <Text style={styles.textRecent}>Recent Activity Feed</Text>
+
+          {[
+            'New Vendor "John Mark" submitted a Scholarship of listing for review',
+            '12 new users joined via referral campaign',
+            'Admin K. Rutledge updated system tokens-to-USD conversion ratio',
+            '2 videos listing flagged for quality review',
+          ].map((text, index) => (
+            <View key={index} style={styles.innerCont}>
+              <Text style={{ fontSize: 25, color: 'white' }}>*</Text>
+              <View>
+                <Text style={{ color: 'white', fontSize: 12.5 }}>{text}</Text>
+                <Text style={{ color: 'gray', fontSize: 10 }}>Today, 10:30 AM</Text>
+              </View>
+            </View>
+          ))}
         </View>
 
+        {/* Pending Actions Section */}
+        <View style={styles.pendingContainer}>
+          <Text style={styles.pendingHeader}>Pending Actions</Text>
+          {pendingActions.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.pendingCard}>
+              <View style={styles.cardLeft}>
+                <View style={styles.iconContainer}>
+                  <FontAwesome5 name={item.icon} size={20} color="#4FC3F7" />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={styles.title}>{item.title}</Text>
+                  <Text style={styles.subtitle}>{item.subtitle}</Text>
+                </View>
+              </View>
+              <View style={styles.badgeWrapper}>
+                <View style={[styles.badge, { backgroundColor: item.badgeColor }]}>
+                  <Text style={styles.digitBadge}>{item.badge}</Text>
+                </View>
+                <Text style={styles.badgeText}>{item.buttonText}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.recentCont}>
+          <Text style={styles.textRecent}>Quick Access</Text>
+          <View style={styles.userManage}>
+            <Text style={styles.userTitle}>User Management</Text>
+            <Text style={styles.userSubTitle}>Manage Users</Text>
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ color: 'gray' }}>Active Students: 12,480</Text>
+            <Text style={{ color: 'gray' }}>Vendors: 310</Text>
+            <Text style={{ color: 'gray' }}>Admin: 6</Text>
+          </View>
+
+          <View style={styles.userManage}>
+            <Text style={styles.userTitle}>Content Overview</Text>
+            <Text style={styles.userSubTitle}>Manage Content</Text>
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ color: 'gray' }}>Active Scholarships: 820</Text>
+            <Text style={{ color: 'gray' }}>Educational Videos: 1,024</Text>
+            <Text style={{ color: 'gray' }}>Student Perks: 112</Text>
+          </View>
+        </View>
+
+        <View style={styles.sysCont}>
+          <Text style={styles.textRecent}>System Alerts</Text>
+
+        <View style={styles.sysinner}>
+          <Foundation name='alert' size={28} color='#ef4444' style={{marginTop:5}}/>
+          <View>
+            <Text style={styles.userTitle}>Scheduled Maintenance</Text>
+            <Text style={{color:'#bcbcbcff',fontSize:14}}>Nov 2,2025 - 12:00 AM to 3:00 AM PST</Text>
+          </View>
+        </View>
+
+        <View style={styles.sysinner2}>
+          <FontAwesome5 name='info-circle' size={28} color='#03a2d5' style={{marginTop:5}}/>
+          <View>
+            <Text style={styles.userTitle}>Token Rate Update</Text>
+            <Text style={{color:'#bcbcbcff',fontSize:14}}>New conversion logic effective Nov 5</Text>
+          </View>
+        </View>
+        <View>
+
+        </View>
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-export default AdminDashboardScreen;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+  sysinner:{
+    flexDirection:'row',
+    backgroundColor:'#616161ff',
+    gap:10,
+    borderRadius:10,
+    padding:10,
+    marginTop:10,
   },
-  header: {
+  sysinner2:{
+    flexDirection:'row',
+    backgroundColor:'#449eae84',
+    gap:10,
+    borderRadius:10,
+    padding:10,
+    marginTop:10,
+  },
+  userTitle: {
+    fontWeight: '600',
+    fontSize: 18,
+    color: "white",
+  },
+  userSubTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#51e3fc',
+    marginTop:2,
+  },
+  userManage: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 25,
+    marginTop: 20,
   },
-  headerTitle: {
-    color: '#FFF',
-    fontSize: 28,
+  badgeWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 20,
+    width: 60, // fixed width so all cards align evenly
+  },
+  innerCont: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
+  textRecent: {
+    fontSize: 23,
+    color: 'white',
     fontWeight: '600',
   },
-  avatarPlaceholder: {
+  recentCont: {
+    backgroundColor: '#021e38',
+    borderRadius: 10,
+    marginTop: 15,
+    padding: 10,
+  },
+  sysCont: {
+    backgroundColor: '#021e38',
+    borderRadius: 10,
+    marginTop: 15,
+    padding: 10,
+    
+  },
+  users: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingBottom: 10,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#0B0F1A',
+    paddingHorizontal: 15,
+    paddingTop: 50,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1A1F2E',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  searchPlaceholder: {
+    color: '#aaa',
+    marginLeft: 8,
+  },
+  welcomeText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    color: '#ffffffff',
+    marginTop: 5,
+  },
+  updateText: {
+    color: '#666',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  scrollContainer: {
+    paddingVertical: 4,
+  },
+  card: {
+    backgroundColor: '#021e38',
+    borderRadius: 16,
+    padding: 20,
+    marginRight: 15,
+    width: 180,
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    color: '#fff',
+    fontSize: 15,
+    marginBottom: 4,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
+  cardValue: {
+    color: '#fff',
+    fontSize: 29,
+    fontWeight: 'bold',
+  },
+  cardSubText: {
+    color: '#52e3fc',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  scholarshipText: {
+    color: '#7B61FF',
+    fontSize: 12,
+    marginTop: 4,
+  },
+
+  // Pending Actions styles
+  pendingContainer: {
+    marginTop: 20,
+  },
+  pendingHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 12,
+  },
+  pendingCardCircle: {
+    alignItems: 'center',
+    backgroundColor: '#021e38',
+    padding: 12,
+    borderRadius: 12,
+    marginRight: 12,
+    width: 100,
+  },
+  circle: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#03A2D5',
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  cardsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statCard: {
-    width: (width / 2) - 25,
-    backgroundColor: '#021E38',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 10,
-
-  },
-  statHeader: {
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 5,
-  },
-  statTitle: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '700',
-    marginLeft: 4,
-  },
-  statValue: {
-    color: '#FFF',
-    fontSize: 29,
-    fontWeight: '700',
-  },
-  statChange: {
-    color: '#51E3FC',
-    fontSize: 12,
-    marginTop: 3,
-  },
-  chartContainer: {
-    backgroundColor: '#021E38',
-    borderRadius: 15,
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  chartHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    paddingHorizontal:10,
-    paddingTop:10
-  },
-  chartTitle: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  chartStyle: {
-    borderRadius: 15,
-    padding:7
-  },
-  alertContainer: {
-    backgroundColor: '#021E38',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  alertItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 6,
-  },
-  alertText: {
-    color: '#fff',
-    marginLeft: 10,
-    fontSize: 14,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  btnText: {
-    color: '#FFF',
-    textAlign: 'center',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  btns:{
-     flexDirection: 'row',
-    backgroundColor: '#021E38',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-  },
-
-  announcementContainer: {
-    backgroundColor: '#021E38',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 40,
-  },
-  announcementText: {
-    color: '#fff',
-    fontSize: 14,
     marginBottom: 6,
   },
+  circleText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  circleLabel: {
+    color: '#fff',
+    fontSize: 12,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+
+  pendingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#021e38',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    justifyContent: 'space-between',
+  },
+  cardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    backgroundColor: '#51e2fc87',
+    padding: 10,
+    borderRadius: 50,
+    marginRight: 12,
+  },
+  textContainer: {
+    maxWidth: '70%',
+  },
+  title: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    color: '#aaa',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  badge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+
+  digitBadge: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    textAlign: 'center',
+  },
 });
+
+export default DashboardScreen;

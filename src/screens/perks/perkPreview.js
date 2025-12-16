@@ -10,15 +10,17 @@ import LinearGradient from 'react-native-linear-gradient'
 
 const PerkPreviewScreen = ({ navigation }) => {
     return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            {/* Header */}
+        <View style={{ backgroundColor: "#000814", flex: 1 }}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={22} color="#fff" />
+                    <Ionicons name="arrow-back" size={22} color="#fff" style={{marginLeft:10}} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Perk Preview</Text>
                 <Ionicons name="bookmark-outline" size={22} color="#fff" />
             </View>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+            {/* Header */}
+            
 
             {/* Perk Card */}
             <View style={styles.perkCard}>
@@ -261,6 +263,7 @@ const PerkPreviewScreen = ({ navigation }) => {
                 ))}
             </ScrollView>
         </ScrollView>
+        </View>
     );
 };
 
@@ -451,11 +454,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 15,
+        marginTop:10,
     },
     headerTitle: {
         color: '#fff',
         fontSize: 18,
         fontWeight: '600',
+        marginRight:180,
     },
     perkCard: {
         backgroundColor: '#031E35',

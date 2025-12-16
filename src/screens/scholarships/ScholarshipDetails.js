@@ -65,8 +65,8 @@ const howToApplySteps = [
 ];
 
 
-const ScholarshipDetails = ({ navigation }) => {
-    const nav = navigation || useNavigation();
+const ScholarshipDetails = () => {
+    const navigation =  useNavigation();
 
     // Data to display
     const scholarship = {
@@ -111,196 +111,204 @@ const ScholarshipDetails = ({ navigation }) => {
     );
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: DARK_BACKGROUND }}>
-            <View style={styles.container}>
-                <StatusBar barStyle="light-content" backgroundColor="#000" />
-
-                {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => nav.goBack()}>
-                        <Icon name="arrow-back" size={28} color={LIGHT_TEXT} />
-                    </TouchableOpacity>
-
-                    <Text style={styles.headerTitle}>Scholarship Details</Text>
-                    <TouchableOpacity>
-                        <Icon name="bookmark-outline" size={28} color={LIGHT_TEXT} />
-                    </TouchableOpacity>
-                </View>
-                <Text style={styles.headerSubtitle}>Get all the info you need before applying</Text>
-
-                {/* Scholarship Card (Main Info) */}
-                <View style={styles.scholarshipCard}>
-                    <View style={styles.cardHeader}>
-                        <Icon name="heart" size={24} color={'#ef4444'} />
-
-                        <View style={styles.badgeGroup}>
-                            <View style={styles.matchedBadge}>
-                                <Text style={styles.matchedText}>{scholarship.match} Matched</Text>
-                            </View>
-                            {scholarship.isFeatured && (
-                                <View style={styles.featuredBadge}>
-                                    <Text style={styles.featuredText}>Featured</Text>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-
-                    <Text style={styles.title}>{scholarship.title}</Text>
-
-                    <View style={styles.infoRow}>
-                        <View style={styles.infoColumn}>
-                            <Text style={styles.amount}>{scholarship.amount}</Text>
-                            <Text style={styles.label}>Amount</Text>
-                        </View>
-                        <View style={styles.infoColumn}>
-                            <Text style={styles.deadline}>{scholarship.deadline}</Text>
-                            <Text style={styles.label}>Deadline</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.tagList}>
-                        {scholarship.tags.map((tag, index) => (
-                            <View key={index} style={styles.infoTag}>
-                                {/* Icons adjusted to look like the image */}
-                                {index === 0 && <Icon name="school-outline" size={14} color='white' style={{ marginRight: 5 }} />}
-                                {index === 1 && <Icon name="people-outline" size={14} color='white' style={{ marginRight: 5 }} />}
-                                {index === 2 && <Icon name="cash-outline" size={14} color='white' style={{ marginRight: 5 }} />}
-                                <Text style={styles.infoTagText}>{tag}</Text>
-                            </View>
-                        ))}
-                    </View>
-                </View>
-
-                {/* About this Scholarship Section */}
-                <View style={styles.aboutStyles}>
-                    <Text style={styles.title}>About this scholarship</Text>
-                    <Text style={styles.aboutSubtitle}>First-generation scholarship are awards designed specifically for students who are the first in their family to complete a 4-year college degree. These scholarship aim to expand opportunities for students who may not have as much family guidance or financial backing as those whose parents have college degrees.</Text>
-                    <TouchableOpacity >
-                        <Text style={styles.readMoreText}>Read More</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <Text style={styles.sectionHeaderTitle}>Key Benefits</Text>
-
-                <View style={styles.benefitsGrid}>
-                    {benefitsData.map(renderBenefitCard)}
-                </View>
-
-                <View style={styles.eligibilityCard}>
-                    <Text style={styles.sectionHeaderTitle}>Eligibility Criteria</Text>
-
-                    <View style={styles.criteriaList}>
-                        {criteriaData.map(renderCriterion)}
-                    </View>
-                </View>
-
-                <Text style={styles.ApplicationTitle}>Application Requirements</Text>
+        <View style={{ flex: 1, backgroundColor: DARK_BACKGROUND }}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => nav.goBack()} style={{ marginTop: -13 }}>
+                    <Icon name="arrow-back" size={28} color={LIGHT_TEXT} />
+                </TouchableOpacity>
                 <View>
-                    <View style={styles.appCont}>
-                        <View>
-                            <TouchableOpacity style={styles.iconCont}>
-                                <FontAwesome name="file-text-o" size={20} color='#51e3fc' />
-                            </TouchableOpacity>
-                        </View>
-                        <View>
-                            <Text style={styles.ApplicationTitle}>Essay</Text>
-                            <Text style={{ color: 'white' }}>1 short essay (max 500 words)</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.appCont}>
-                        <View>
-                            <TouchableOpacity style={styles.iconCont}>
-                                <Icon name="document-lock-sharp" size={20} color='#51e3fc' />
-                            </TouchableOpacity>
-                        </View>
-                        <View>
-                            <Text style={styles.ApplicationTitle}>Transcript</Text>
-                            <Text style={{ color: 'white' }}>most recent transcript (PDF)</Text>
-
-                        </View>
-                    </View>
-
-                    <View style={styles.appCont}>
-                        <View>
-                            <TouchableOpacity style={styles.iconCont}>
-                                <FontAwesome name="file" size={20} color='#51e3fc' />
-                            </TouchableOpacity>
-                        </View>
-                        <View>
-                            <Text style={styles.ApplicationTitle}>Resume</Text>
-                            <Text style={{ color: 'white' }}>Optional but recommended</Text>
-
-                        </View>
-                    </View>
-
-                    <View style={styles.appCont}>
-                        <View>
-                            <TouchableOpacity style={styles.iconCont}>
-                                <Icon name="people" size={20} color='#51e3fc' />
-                            </TouchableOpacity>
-                        </View>
-                        <View>
-                            <Text style={styles.ApplicationTitle}>Letters for Rec</Text>
-                            <Text style={{ color: 'white' }}>2 letters from mentors or professors</Text>
-
-                        </View>
-                    </View>
+                    <Text style={styles.headerTitle}>Scholarship Details</Text>
+                    <Text style={styles.headerSubtitle}>Get all the info you need before applying</Text>
                 </View>
 
-                <View style={styles.howToApplyCard}>
-                    <Text style={styles.sectionHeaderTitle}>How to Apply</Text>
-                    {howToApplySteps.map(renderApplyStep)}
-                </View>
-
-
-
-                <LinearGradient
-                    colors={['#51e3fc', '#064b63ff']} // You can change gradient colors
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.subscriptionSection}
-                >
-                    <Text style={styles.subscriptionTitle}>Tech Innovators Inc.</Text>
-
-                    <View style={styles.verifiedBadge}>
-                        <Icon name="checkmark-circle" size={16} color="#12db00" />
-                        <Text style={styles.verifiedText}>Verified Vendor</Text>
-                    </View>
-
-                    <Text style={{ fontSize: 17, color: 'white' }}>
-                        Empowering students through tech support
-                    </Text>
-
-                    <View style={styles.upgradeRow}>
-                        <TouchableOpacity>
-                            <View style={styles.vendorButton}>
-                                <Text style={styles.upgradeText}>View Vendor Profile</Text>
-                                <FontAwesome6 name='arrow-right-long' size={15} color='white' />
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                </LinearGradient>
-
-
-                <View style={{ alignItems: 'center' }}>
-                    <TouchableOpacity style={styles.lastBtn} onPress={() => nav.navigate('VideoHub')}>
-                        <Text style={{ color: 'white', fontSize: 22, fontWeight: '600' }}>Apply Now</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={{ alignItems: 'center' }}>
-                    <TouchableOpacity style={styles.SaveBtn}>
-                        <Text style={{ color: '#51e3fc', fontSize: 22, fontWeight: '600' }}>Save for Later</Text>
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity style={{ marginTop: -10, marginRight: 13 }}>
+                    <Icon name="bookmark-outline" size={28} color={LIGHT_TEXT} />
+                </TouchableOpacity>
 
             </View>
-        </ScrollView>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: DARK_BACKGROUND }}>
+                <View style={styles.container}>
+                    <StatusBar barStyle="light-content" backgroundColor="#000" />
+
+                    {/* Header */}
+
+
+                    {/* Scholarship Card (Main Info) */}
+                    <View style={styles.scholarshipCard}>
+                        <View style={styles.cardHeader}>
+                            <Icon name="heart" size={24} color={'#ef4444'} />
+
+                            <View style={styles.badgeGroup}>
+                                <View style={styles.matchedBadge}>
+                                    <Text style={styles.matchedText}>{scholarship.match} Matched</Text>
+                                </View>
+                                {scholarship.isFeatured && (
+                                    <View style={styles.featuredBadge}>
+                                        <Text style={styles.featuredText}>Featured</Text>
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+
+                        <Text style={styles.title}>{scholarship.title}</Text>
+
+                        <View style={styles.infoRow}>
+                            <View style={styles.infoColumn}>
+                                <Text style={styles.amount}>{scholarship.amount}</Text>
+                                <Text style={styles.label}>Amount</Text>
+                            </View>
+                            <View style={styles.infoColumn}>
+                                <Text style={styles.deadline}>{scholarship.deadline}</Text>
+                                <Text style={styles.label}>Deadline</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.tagList}>
+                            {scholarship.tags.map((tag, index) => (
+                                <View key={index} style={styles.infoTag}>
+                                    {/* Icons adjusted to look like the image */}
+                                    {index === 0 && <Icon name="school-outline" size={14} color='white' style={{ marginRight: 5 }} />}
+                                    {index === 1 && <Icon name="people-outline" size={14} color='white' style={{ marginRight: 5 }} />}
+                                    {index === 2 && <Icon name="cash-outline" size={14} color='white' style={{ marginRight: 5 }} />}
+                                    <Text style={styles.infoTagText}>{tag}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+
+                    {/* About this Scholarship Section */}
+                    <View style={styles.aboutStyles}>
+                        <Text style={styles.title}>About this scholarship</Text>
+                        <Text style={styles.aboutSubtitle}>First-generation scholarship are awards designed specifically for students who are the first in their family to complete a 4-year college degree. These scholarship aim to expand opportunities for students who may not have as much family guidance or financial backing as those whose parents have college degrees.</Text>
+                        <TouchableOpacity >
+                            <Text style={styles.readMoreText}>Read More</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <Text style={styles.sectionHeaderTitle}>Key Benefits</Text>
+
+                    <View style={styles.benefitsGrid}>
+                        {benefitsData.map(renderBenefitCard)}
+                    </View>
+
+                    <View style={styles.eligibilityCard}>
+                        <Text style={styles.sectionHeaderTitle}>Eligibility Criteria</Text>
+
+                        <View style={styles.criteriaList}>
+                            {criteriaData.map(renderCriterion)}
+                        </View>
+                    </View>
+
+                    <Text style={styles.ApplicationTitle}>Application Requirements</Text>
+                    <View>
+                        <View style={styles.appCont}>
+                            <View>
+                                <TouchableOpacity style={styles.iconCont}>
+                                    <FontAwesome name="file-text-o" size={20} color='#51e3fc' />
+                                </TouchableOpacity>
+                            </View>
+                            <View>
+                                <Text style={styles.ApplicationTitle}>Essay</Text>
+                                <Text style={{ color: 'white' }}>1 short essay (max 500 words)</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.appCont}>
+                            <View>
+                                <TouchableOpacity style={styles.iconCont}>
+                                    <Icon name="document-lock-sharp" size={20} color='#51e3fc' />
+                                </TouchableOpacity>
+                            </View>
+                            <View>
+                                <Text style={styles.ApplicationTitle}>Transcript</Text>
+                                <Text style={{ color: 'white' }}>most recent transcript (PDF)</Text>
+
+                            </View>
+                        </View>
+
+                        <View style={styles.appCont}>
+                            <View>
+                                <TouchableOpacity style={styles.iconCont}>
+                                    <FontAwesome name="file" size={20} color='#51e3fc' />
+                                </TouchableOpacity>
+                            </View>
+                            <View>
+                                <Text style={styles.ApplicationTitle}>Resume</Text>
+                                <Text style={{ color: 'white' }}>Optional but recommended</Text>
+
+                            </View>
+                        </View>
+
+                        <View style={styles.appCont}>
+                            <View>
+                                <TouchableOpacity style={styles.iconCont}>
+                                    <Icon name="people" size={20} color='#51e3fc' />
+                                </TouchableOpacity>
+                            </View>
+                            <View>
+                                <Text style={styles.ApplicationTitle}>Letters for Rec</Text>
+                                <Text style={{ color: 'white' }}>2 letters from mentors or professors</Text>
+
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={styles.howToApplyCard}>
+                        <Text style={styles.sectionHeaderTitle}>How to Apply</Text>
+                        {howToApplySteps.map(renderApplyStep)}
+                    </View>
+
+
+
+                    <LinearGradient
+                        colors={['#51e3fc', '#064b63ff']} // You can change gradient colors
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.subscriptionSection}
+                    >
+                        <Text style={styles.subscriptionTitle}>Tech Innovators Inc.</Text>
+
+                        <View style={styles.verifiedBadge}>
+                            <Icon name="checkmark-circle" size={16} color="#12db00" />
+                            <Text style={styles.verifiedText}>Verified Vendor</Text>
+                        </View>
+
+                        <Text style={{ fontSize: 17, color: 'white' }}>
+                            Empowering students through tech support
+                        </Text>
+
+                        <View style={styles.upgradeRow}>
+                            <TouchableOpacity>
+                                <View style={styles.vendorButton}>
+                                    <Text style={styles.upgradeText}>View Vendor Profile</Text>
+                                    <FontAwesome6 name='arrow-right-long' size={15} color='white' />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </LinearGradient>
+
+
+                    <View style={{ alignItems: 'center' }}>
+                        <TouchableOpacity style={styles.lastBtn} onPress={() => navigation.navigate('videoHub')}>
+                            <Text style={{ color: 'white', fontSize: 22, fontWeight: '600' }}>Apply Now</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ alignItems: 'center', paddingBottom: 75}}>
+                        <TouchableOpacity style={styles.SaveBtn}>
+                            <Text style={{ color: '#51e3fc', fontSize: 22, fontWeight: '600' }}>Save for Later</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+
     iconCont: {
         marginTop: 10,
         backgroundColor: '#03a2d5', // change to your preferred color
@@ -326,6 +334,7 @@ const styles = StyleSheet.create({
         color: LIGHT_TEXT,
         fontSize: 22,
         fontWeight: 'bold',
+
     },
     headerSubtitle: {
         color: GRAY_TEXT,
@@ -658,6 +667,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingHorizontal: 12,
         borderRadius: 10,
+
     },
     SaveBtn: {
         backgroundColor: 'transparent',

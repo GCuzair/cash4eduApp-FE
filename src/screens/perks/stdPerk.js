@@ -13,9 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Icon } from 'react-native-paper';
-import Feather from 'react-native-vector-icons/Feather';
-import { FireApi } from '../../utils/FireApi';
 
 const StudentPerk = () => {
     const navigation = useNavigation()
@@ -30,378 +27,387 @@ const StudentPerk = () => {
    
 
     return (
-        <ScrollView style={styles.container}>
-            <View>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>Student Perks</Text>
-                    <Text style={styles.subtitle}>
-                        Explore exclusive student offers and rewards.
-                    </Text>
-                </View>
-
-                {/* Search Section */}
-                <View style={styles.searchContainer}>
-                    <View style={styles.searchBox}>
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Search offers or categories..."
-                            placeholderTextColor="#aaa"
-                        />
-                        <FontAwesome5 name="search" size={16} color="#fff" />
-                        <FontAwesome5
-                            name="microphone"
-                            size={16}
-                            color="#fff"
-                            style={{ marginLeft: 10 }}
-                        />
-                    </View>
-                    <View style={styles.settings}>
-                        <Text style={styles.txt}>Advance Filters</Text>
-                        <TouchableOpacity style={styles.sortBox}>
-                            <Text style={styles.sortText}>Sort by: Highest Discount</Text>
-                            <MaterialIcons name="arrow-drop-down" size={22} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                {/* --- Category Buttons (with Gradient on Active) --- */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.categoryScroll}
-                >
-                    {categories.map((cat) => {
-                        const isActive = activeCategory === cat.name;
-
-                        return (
-                            <TouchableOpacity
-                                key={cat.id}
-                                onPress={() => setActiveCategory(cat.name)}
-                                onPressOut={() => navigation.navigate('TuitionAssistance')}
-                            >
-                                {isActive ? (
-                                    <LinearGradient
-                                        colors={['#69E8FF', '#0257a7']}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={styles.categoryButtonGradient}
-                                    >
-                                        <FontAwesome5
-                                            name={cat.icon}
-                                            size={14}
-                                            color="#fff"
-                                        />
-                                        <Text style={styles.categoryTextActive}>
-                                            {cat.name}
-                                        </Text>
-                                    </LinearGradient>
-                                ) : (
-                                    <View style={styles.categoryButton}>
-                                        <FontAwesome5
-                                            name={cat.icon}
-                                            size={14}
-                                            color="#00b4d8"
-                                        />
-                                        <Text style={styles.categoryText}>{cat.name}</Text>
-                                    </View>
-                                )}
+        <View style={{ backgroundColor: "#000814", flex: 1 }}>
+            <View style={styles.header}>
+                <Text style={styles.title}>Student Perks</Text>
+                <Text style={styles.subtitle}>
+                    Explore exclusive student offers and rewards.
+                </Text>
+            </View>
+            <ScrollView style={styles.container}>
+                <View>
+                    {/* Search Section */}
+                    <View style={styles.searchContainer}>
+                        <View style={styles.searchBox}>
+                            <TextInput
+                                style={styles.searchInput}
+                                placeholder="Search offers or categories..."
+                                placeholderTextColor="#aaa"
+                            />
+                            <FontAwesome5 name="search" size={16} color="#fff" />
+                            
+                        </View>
+                        <View style={styles.settings}>
+                            <Text style={styles.txt}>Advance Filters</Text>
+                            <TouchableOpacity style={styles.sortBox}>
+                                <Text style={styles.sortText}>Sort by: Highest Discount</Text>
+                                <MaterialIcons name="arrow-drop-down" size={22} color="#fff" />
                             </TouchableOpacity>
-                        );
-                    })}
-                </ScrollView>
-
-                {/* Example Offer Card */}
-                <View style={styles.card}>
-                    <View style={styles.row}>
-                        <Image
-                            source={require('../../assets/images/burger.png')}
-                            style={styles.logo}
-                        />
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.title}>McDonald's</Text>
-                            <Text style={styles.subtitle}>10% Off Meals for Students</Text>
                         </View>
                     </View>
 
-                    <View style={styles.tagRow}>
-                        <View style={styles.tag}>
-                            <Text style={styles.tagText}>Food & Dining</Text>
-                        </View>
-                        <View style={styles.tag}>
-                            <Text style={styles.tagText}>Student Verified</Text>
-                        </View>
-                    </View>
+                    {/* --- Category Buttons (with Gradient on Active) --- */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.categoryScroll}
+                    >
+                        {categories.map((cat) => {
+                            const isActive = activeCategory === cat.name;
 
-                    <View style={styles.validityBox}>
-                        <Text style={styles.validityText}>Valid until Nov 30, 2025</Text>
-                    </View>
+                            const handleCategoryPress = () => {
+                                setActiveCategory(cat.name);
 
-                    <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.viewButton}
-                            onPress={() => navigation.navigate('PerkDetails')}>
-                            <Text style={styles.viewButtonText}>View Details</Text>
-                            <MaterialCommunityIcons
-                                name="arrow-right"
-                                color="#fff"
-                                size={18}
+                                // 🔹 Add navigation based on category name
+                                if (cat.name === 'Tuition Assistance') {
+                                    navigation.navigate('tuitionAssistance');
+                                } else if (cat.name === 'Food & Dining') {
+                                    navigation.navigate('perkPreview');
+                                }
+                            };
+
+                            return (
+                                <TouchableOpacity
+                                    key={cat.id}
+                                    onPress={handleCategoryPress}
+                                >
+                                    {isActive ? (
+                                        <LinearGradient
+                                            colors={['#69E8FF', '#0257a7']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 1 }}
+                                            style={styles.categoryButtonGradient}
+                                        >
+                                            <FontAwesome5
+                                                name={cat.icon}
+                                                size={14}
+                                                color="#fff"
+                                            />
+                                            <Text style={styles.categoryTextActive}>
+                                                {cat.name}
+                                            </Text>
+                                        </LinearGradient>
+                                    ) : (
+                                        <View style={styles.categoryButton}>
+                                            <FontAwesome5
+                                                name={cat.icon}
+                                                size={14}
+                                                color="#00b4d8"
+                                            />
+                                            <Text style={styles.categoryText}>{cat.name}</Text>
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+
+
+                    {/* Example Offer Card */}
+                    <View style={styles.card}>
+                        <View style={styles.row}>
+                            <Image
+                                source={require('../../assets/images/burger.png')}
+                                style={styles.logo}
                             />
-                        </TouchableOpacity>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.title}>McDonald's</Text>
+                                <Text style={styles.subtitle}>10% Off Meals for Students</Text>
+                            </View>
+                        </View>
 
-                        <TouchableOpacity style={styles.directionButton} onPress={() => navigation.navigate('PerkDetails')}>
-                            <Text style={styles.directionButtonText}>Get Directions</Text>
-                            <FontAwesome5 name="directions" color="#00b4d8" size={16} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                        <View style={styles.tagRow}>
+                            <View style={styles.tag}>
+                                <Text style={styles.tagText}>Food & Dining</Text>
+                            </View>
+                            <View style={styles.tag}>
+                                <Text style={styles.tagText}>Student Verified</Text>
+                            </View>
+                        </View>
 
-                <View style={styles.card}>
-                    <View style={styles.row}>
-                        <Image
-                            source={require('../../assets/images/burger.png')}
-                            style={styles.logo}
-                        />
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.title}>McDonald's</Text>
-                            <Text style={styles.subtitle}>10% Off Meals for Students</Text>
+                        <View style={styles.validityBox}>
+                            <Text style={styles.validityText}>Valid until Nov 30, 2025</Text>
+                        </View>
+
+                        <View style={styles.buttonRow}>
+                            <TouchableOpacity style={styles.viewButton}
+                                onPress={() => navigation.navigate('PerkDetails')}>
+                                <Text style={styles.viewButtonText}>View Details</Text>
+                                <MaterialCommunityIcons
+                                    name="arrow-right"
+                                    color="#fff"
+                                    size={18}
+                                />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.directionButton} onPress={() => navigation.navigate('PerkDetails')}>
+                                <Text style={styles.directionButtonText}>Get Directions</Text>
+                                <FontAwesome5 name="directions" color="#00b4d8" size={16} />
+                            </TouchableOpacity>
                         </View>
                     </View>
 
-                    <View style={styles.tagRow}>
-                        <View style={styles.tag}>
-                            <Text style={styles.tagText}>Food & Dining</Text>
-                        </View>
-                        <View style={styles.tag}>
-                            <Text style={styles.tagText}>Student Verified</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.validityBox}>
-                        <Text style={styles.validityText}>Valid until Nov 30, 2025</Text>
-                    </View>
-
-                    <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.viewButton}>
-                            <Text style={styles.viewButtonText}>View Detail</Text>
-                            <MaterialCommunityIcons
-                                name="arrow-right"
-                                color="#fff"
-                                size={18}
+                    <View style={styles.card}>
+                        <View style={styles.row}>
+                            <Image
+                                source={require('../../assets/images/burger.png')}
+                                style={styles.logo}
                             />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.directionButton}>
-                            <Text style={styles.directionButtonText}>Get Directions</Text>
-                            <FontAwesome5 name="directions" color="#00b4d8" size={16} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <View style={styles.viewAllBtnCont}>
-                    <TouchableOpacity style={styles.viewAllBtn}>
-                        <Text style={{ color: '#03A2D5', fontSize: 20, fontWeight: '600' }}>View All</Text>
-                        <FontAwesome5 name="arrow-right" size={15} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-                {/* Keep learning section */}
-
-
-                <LinearGradient
-                    colors={['#51e3fc', '#006f94ff']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.keepLearningMain}
-                >
-                    <View style={styles.keepLearningContent}>
-                        <FontAwesome5 name="book-reader" size={25} color="#fff" style={styles.keepLearningIcon} />
-                        <View style={styles.keepLearningTextContainer}>
-                            <Text style={styles.keepLearningText}>Keep learning to earn tokens faster!</Text>
-                            <Text style={styles.keepLearningSubtitle}>Watch videos, apply to scholarships, or invite a friend</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.title}>McDonald's</Text>
+                                <Text style={styles.subtitle}>10% Off Meals for Students</Text>
+                            </View>
                         </View>
-                        <FontAwesome5 name="arrow-right" size={25} color="#fff" style={styles.arrowIcon} />
-                    </View>
-                </LinearGradient>
 
-                {/*Featured Student Perks Section */}
-                <Text style={styles.sectionTitle}>Featured Student Perks</Text>
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.horizontalScroll}
-                >
-                    {[1, 2].map((item) => (
-                        <View key={item} style={styles.featureCard}>
-                            <View style={styles.logoContainer}>
+                        <View style={styles.tagRow}>
+                            <View style={styles.tag}>
+                                <Text style={styles.tagText}>Food & Dining</Text>
+                            </View>
+                            <View style={styles.tag}>
+                                <Text style={styles.tagText}>Student Verified</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.validityBox}>
+                            <Text style={styles.validityText}>Valid until Nov 30, 2025</Text>
+                        </View>
+
+                        <View style={styles.buttonRow}>
+                            <TouchableOpacity style={styles.viewButton}>
+                                <Text style={styles.viewButtonText}>View Detail</Text>
+                                <MaterialCommunityIcons
+                                    name="arrow-right"
+                                    color="#fff"
+                                    size={18}
+                                />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.directionButton}>
+                                <Text style={styles.directionButtonText}>Get Directions</Text>
+                                <FontAwesome5 name="directions" color="#00b4d8" size={16} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={styles.viewAllBtnCont}>
+                        <TouchableOpacity style={styles.viewAllBtn}>
+                            <Text style={{ color: '#03A2D5', fontSize: 20, fontWeight: '600' }}>View All</Text>
+                            <FontAwesome5 name="arrow-right" size={15} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                    {/* Keep learning section */}
+
+
+                    <LinearGradient
+                        colors={['#51e3fc', '#006f94ff']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.keepLearningMain}
+                    >
+                        <View style={styles.keepLearningContent}>
+                            <FontAwesome5 name="book-reader" size={25} color="#fff" style={styles.keepLearningIcon} />
+                            <View style={styles.keepLearningTextContainer}>
+                                <Text style={styles.keepLearningText}>Keep learning to earn tokens faster!</Text>
+                                <Text style={styles.keepLearningSubtitle}>Watch videos, apply to scholarships, or invite a friend</Text>
+                            </View>
+                            <FontAwesome5 name="arrow-right" size={25} color="#fff" style={styles.arrowIcon} />
+                        </View>
+                    </LinearGradient>
+
+                    {/*Featured Student Perks Section */}
+                    <Text style={styles.sectionTitle}>Featured Student Perks</Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.horizontalScroll}
+                    >
+                        {[1, 2].map((item) => (
+                            <View key={item} style={styles.featureCard}>
+                                <View style={styles.logoContainer}>
+                                    <Image
+                                        source={require('../../assets/images/pizza.png')}
+                                        style={styles.logoSmall}
+                                    />
+                                </View>
+
+                                <View style={styles.partnerTag}>
+                                    <Text style={styles.partnerText}>Verified Partner</Text>
+                                </View>
+
+                                <Text style={styles.featureTitle}>Pizza Hut College Plan</Text>
+                                <Text style={styles.featureSubtitle}>
+                                    100% tuition coverage for ASU Online Degrees
+                                </Text>
+
+                                <TouchableOpacity style={styles.learnButton}>
+                                    <Text style={styles.learnButtonText}>Learn More</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </ScrollView>
+
+                    {/* 🔹 Student Perks Near You */}
+                    <Text style={styles.sectionTitle}>Student Perks Near You</Text>
+                    <View style={styles.nearbyCard}>
+                        <View style={styles.nearbyIcon}>
+                            <FontAwesome5 name="map-marker-alt" color="#69E8FF" size={22} />
+                        </View>
+                        <Text style={styles.nearbyTitle}>12 local perks found</Text>
+                        <Text style={styles.nearbySubtitle}>Food, fitness & more</Text>
+                    </View>
+
+                    <View style={styles.viewAllBtnCont}>
+                        <TouchableOpacity style={styles.viewAllBtn}>
+                            <Text style={{ color: '#03A2D5', fontSize: 20, fontWeight: '600' }}>View All</Text>
+                            <FontAwesome5 name="arrow-right" size={15} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.tuitionCard}>
+                        {/* Header: Logo, Title, and Tokens Badge */}
+                        <View style={styles.cardHeader}>
+                            <View style={styles.logoAndTitle}>
                                 <Image
-                                    source={require('../../assets/images/pizza.png')}
+                                    source={require('../../assets/images/spotify.png')}
                                     style={styles.logoSmall}
                                 />
+                                <Text style={styles.programTitle}>Microsoft Tuition Assistance</Text>
                             </View>
-
-                            <View style={styles.partnerTag}>
-                                <Text style={styles.partnerText}>Verified Partner</Text>
+                            <View style={styles.tokensBadge}>
+                                <Text style={styles.tokensText}>+30 Tokens</Text>
                             </View>
+                        </View>
 
-                            <Text style={styles.featureTitle}>Pizza Hut College Plan</Text>
-                            <Text style={styles.featureSubtitle}>
-                                100% tuition coverage for ASU Online Degrees
-                            </Text>
+                        {/* Detail Text */}
+                        <Text style={styles.assistanceDetail}>
+                            Up to **$5,250 per year** for job-relevant and education and skill development
+                        </Text>
 
-                            <TouchableOpacity style={styles.learnButton}>
-                                <Text style={styles.learnButtonText}>Learn More</Text>
+                        {/* Tags Section */}
+                        <View style={styles.tagsSection}>
+                            <View style={styles.tag}><Text style={styles.tagText}>Full-Time</Text></View>
+                            <View style={styles.tag}><Text style={styles.tagText}>US Only</Text></View>
+                            <View style={styles.tag}><Text style={styles.tagText}>Open Year-Round</Text></View>
+                        </View>
+
+                        {/* Action Buttons */}
+                        <View style={styles.actionsSection}>
+                            <TouchableOpacity style={[styles.btn, styles.btnLearnMore]} activeOpacity={0.7}>
+                                <Text style={styles.btnTextWhite}>Learn More</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.btn, styles.btnApplyNow]} activeOpacity={0.7}>
+                                <Text style={styles.btnTextBlue}>Apply Now</Text>
                             </TouchableOpacity>
                         </View>
-                    ))}
-                </ScrollView>
-
-                {/* 🔹 Student Perks Near You */}
-                <Text style={styles.sectionTitle}>Student Perks Near You</Text>
-                <View style={styles.nearbyCard}>
-                    <View style={styles.nearbyIcon}>
-                        <FontAwesome5 name="map-marker-alt" color="#69E8FF" size={22} />
                     </View>
-                    <Text style={styles.nearbyTitle}>12 local perks found</Text>
-                    <Text style={styles.nearbySubtitle}>Food, fitness & more</Text>
-                </View>
 
-                <View style={styles.viewAllBtnCont}>
-                    <TouchableOpacity style={styles.viewAllBtn}>
-                        <Text style={{ color: '#03A2D5', fontSize: 20, fontWeight: '600' }}>View All</Text>
-                        <FontAwesome5 name="arrow-right" size={15} color="#fff" />
-                    </TouchableOpacity>
-                </View>
+                    <View style={styles.viewAllBtnCont}>
+                        <TouchableOpacity style={styles.viewAllBtn}>
+                            <Text style={{ color: '#03A2D5', fontSize: 20, fontWeight: '600' }}>View All</Text>
+                            <FontAwesome5 name="arrow-right" size={15} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
 
-                <View style={styles.tuitionCard}>
-                    {/* Header: Logo, Title, and Tokens Badge */}
-                    <View style={styles.cardHeader}>
-                        <View style={styles.logoAndTitle}>
-                            <Image
-                                source={require('../../assets/images/spotify.png')}
-                                style={styles.logoSmall}
-                            />
-                            <Text style={styles.programTitle}>Microsoft Tuition Assistance</Text>
+                    {/* GRADS SECTION */}
+                    <LinearGradient
+                        colors={['#51e3fc', '#00475fff']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.keepLearningMain}
+                    >
+                        <View style={styles.keepLearningContent}>
+                            <FontAwesome5 name="graduation-cap" size={22} color="#fff" style={styles.keepLearningIcon} />
+                            <View style={styles.keepLearningTextContainer}>
+                                <Text style={styles.gradSecText}>Grad and Post-Grad Programs</Text>
+                                <Text style={styles.keepLearningSubtitle}>Discover funding and benefits for your graduate or post-graduate studies</Text>
+                            </View>
+                            <FontAwesome5 name="arrow-right" size={25} color="#fff" style={styles.arrowIcon} />
                         </View>
-                        <View style={styles.tokensBadge}>
-                            <Text style={styles.tokensText}>+30 Tokens</Text>
+                    </LinearGradient>
+                    {/* invite sec */}
+                    <LinearGradient
+                        colors={['#00284dff', '#51e3fc']}
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.inviteUser}
+                    >
+                        <FontAwesome5 name="users" size={50} color="#fff" />
+                        <Text style={styles.inviteTitle}>Invite Friends and Earn</Text>
+                        <Text style={styles.inviteSubtitle}>
+                            Invite your friends and earn 50 tokens for each sign-up!
+                        </Text>
+                        <TouchableOpacity style={styles.inviteBtn}>
+                            <Text style={styles.inviteBtnText}>Invite Now</Text>
+                        </TouchableOpacity>
+                    </LinearGradient>
+
+                    <View style={styles.redempTextCont}>
+                        <Text style={styles.sectionTitle}>My Redemptions</Text>
+                        <Text style={styles.redempSub}>View All</Text>
+                    </View>
+
+                    <View style={{ paddingBottom: 110 }}>
+                        <View style={styles.redempCont}>
+                            <MaterialIcons name='coffee' color='#fff' size={45} />
+                            <View style={{ marginTop: 10 }}>
+                                <Text style={styles.coffeeText}>Free Coffee</Text>
+                                <Text style={styles.redeemTxt}>Redeem 2 days ago</Text>
+                            </View>
+
+                            <View style={styles.redemBtnAndTxt}>
+                                <TouchableOpacity style={styles.redemBtn}>
+                                    <Text style={styles.redemBtnTxt}>Active</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.expTxt}>Expires in 13 days</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.redempCont}>
+                            <MaterialIcons name='coffee' color='#fff' size={45} />
+                            <View style={{ marginTop: 10 }}>
+                                <Text style={styles.coffeeText}>Free Coffee</Text>
+                                <Text style={styles.redeemTxt}>Redeem 2 days ago</Text>
+                            </View>
+
+                            <View style={styles.redemBtnAndTxt}>
+                                <TouchableOpacity style={styles.redemBtn}>
+                                    <Text style={styles.redemBtnTxt}>Active</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.expTxt}>Expires in 13 days</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.endcont}>
+
+                            <MaterialIcons name='coffee' color='#fff' size={45} />
+                            <View style={{ marginTop: 10 }}>
+                                <Text style={styles.coffeeText}>Free Coffee</Text>
+                                <Text style={styles.redeemTxt}>Redeem 2 days ago</Text>
+                            </View>
+
+                            <View style={styles.redemBtnAndTxt}>
+                                <TouchableOpacity style={styles.redemBtn}>
+                                    <Text style={styles.redemBtnTxt}>Active</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.expTxt}>Expires in 13 days</Text>
+                            </View>
                         </View>
                     </View>
 
-                    {/* Detail Text */}
-                    <Text style={styles.assistanceDetail}>
-                        Up to **$5,250 per year** for job-relevant and education and skill development
-                    </Text>
-
-                    {/* Tags Section */}
-                    <View style={styles.tagsSection}>
-                        <View style={styles.tag}><Text style={styles.tagText}>Full-Time</Text></View>
-                        <View style={styles.tag}><Text style={styles.tagText}>US Only</Text></View>
-                        <View style={styles.tag}><Text style={styles.tagText}>Open Year-Round</Text></View>
-                    </View>
-
-                    {/* Action Buttons */}
-                    <View style={styles.actionsSection}>
-                        <TouchableOpacity style={[styles.btn, styles.btnLearnMore]} activeOpacity={0.7}>
-                            <Text style={styles.btnTextWhite}>Learn More</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.btn, styles.btnApplyNow]} activeOpacity={0.7}>
-                            <Text style={styles.btnTextBlue}>Apply Now</Text>
-                        </TouchableOpacity>
-                    </View>
                 </View>
 
-                <View style={styles.viewAllBtnCont}>
-                    <TouchableOpacity style={styles.viewAllBtn}>
-                        <Text style={{ color: '#03A2D5', fontSize: 20, fontWeight: '600' }}>View All</Text>
-                        <FontAwesome5 name="arrow-right" size={15} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* GRADS SECTION */}
-                <LinearGradient
-                    colors={['#51e3fc', '#00475fff']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.keepLearningMain}
-                >
-                    <View style={styles.keepLearningContent}>
-                        <FontAwesome5 name="graduation-cap" size={22} color="#fff" style={styles.keepLearningIcon} />
-                        <View style={styles.keepLearningTextContainer}>
-                            <Text style={styles.gradSecText}>Grad and Post-Grad Programs</Text>
-                            <Text style={styles.keepLearningSubtitle}>Discover funding and benefits for your graduate or post-graduate studies</Text>
-                        </View>
-                        <FontAwesome5 name="arrow-right" size={25} color="#fff" style={styles.arrowIcon} />
-                    </View>
-                </LinearGradient>
-                {/* invite sec */}
-                <LinearGradient
-                    colors={['#00284dff', '#51e3fc']}
-                    start={{ x: 1, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.inviteUser}
-                >
-                    <FontAwesome5 name="users" size={50} color="#fff" />
-                    <Text style={styles.inviteTitle}>Invite Friends and Earn</Text>
-                    <Text style={styles.inviteSubtitle}>
-                        Invite your friends and earn 50 tokens for each sign-up!
-                    </Text>
-                    <TouchableOpacity style={styles.inviteBtn}>
-                        <Text style={styles.inviteBtnText}>Invite Now</Text>
-                    </TouchableOpacity>
-                </LinearGradient>
-
-                <View style={styles.redempTextCont}>
-                    <Text style={styles.sectionTitle}>My Redemptions</Text>
-                    <Text style={styles.redempSub}>View All</Text>
-                </View>
-
-                <View style={styles.redempCont}>
-                    <MaterialIcons name='coffee' color='#fff' size={45} />
-                    <View style={{ marginTop: 10 }}>
-                        <Text style={styles.coffeeText}>Free Coffee</Text>
-                        <Text style={styles.redeemTxt}>Redeem 2 days ago</Text>
-                    </View>
-
-                    <View style={styles.redemBtnAndTxt}>
-                        <TouchableOpacity style={styles.redemBtn}>
-                            <Text style={styles.redemBtnTxt}>Active</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.expTxt}>Expires in 13 days</Text>
-                    </View>
-                </View>
-
-                <View style={styles.redempCont}>
-                    <MaterialIcons name='coffee' color='#fff' size={45} />
-                    <View style={{ marginTop: 10 }}>
-                        <Text style={styles.coffeeText}>Free Coffee</Text>
-                        <Text style={styles.redeemTxt}>Redeem 2 days ago</Text>
-                    </View>
-
-                    <View style={styles.redemBtnAndTxt}>
-                        <TouchableOpacity style={styles.redemBtn}>
-                            <Text style={styles.redemBtnTxt}>Active</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.expTxt}>Expires in 13 days</Text>
-                    </View>
-                </View>
-
-
-
-            </View>
-            <View style={styles.endcont}>
-                <MaterialIcons name='coffee' color='#fff' size={45} />
-                <View style={{ marginTop: 10 }}>
-                    <Text style={styles.coffeeText}>Free Coffee</Text>
-                    <Text style={styles.redeemTxt}>Redeem 2 days ago</Text>
-                </View>
-
-                <View style={styles.redemBtnAndTxt}>
-                    <TouchableOpacity style={styles.redemBtn}>
-                        <Text style={styles.redemBtnTxt}>Active</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.expTxt}>Expires in 13 days</Text>
-                </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 };
 
@@ -506,7 +512,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         flexDirection: 'row',
         gap: 11,
-        height:90,
     },
     inviteUser: {
         width: '98%',
@@ -564,6 +569,8 @@ const styles = StyleSheet.create({
     },
     header: {
         justifyContent: 'space-between',
+        marginTop: 10,
+        marginLeft: 20,
     },
     title: {
         color: '#fff',
@@ -581,6 +588,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 12,
         marginBottom: 16,
+        bottom: 20,
     },
     searchBox: {
         flexDirection: 'row',

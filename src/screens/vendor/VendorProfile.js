@@ -11,7 +11,6 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import MatIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
-
 const { width } = Dimensions.get('window');
 
 // --- Reusable Component for Info Sections (KEPT FOR OTHER SECTIONS) ---
@@ -31,7 +30,6 @@ const InfoSection = ({ title, children, showEdit = true }) => (
     </View>
 );
 
-// --- Reusable Component for Stat Boxes ---
 const StatBox = ({ label, value }) => (
     <View style={styles.statBox}>
         <Text style={styles.statValue}>{value}</Text>
@@ -39,10 +37,6 @@ const StatBox = ({ label, value }) => (
     </View>
 );
 
-
-// ---------------------------------------------
-//           MAIN VENDOR PROFILE COMPONENT
-// ---------------------------------------------
 const VendorProfileScreen = () => {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -115,16 +109,6 @@ const VendorProfileScreen = () => {
                 </View>
             </InfoSection>
 
-            {/* 7. Listing Overview */}
-            <Text style={styles.overviewTitle}>Your Listing Overview</Text>
-            <View style={styles.statsRow}>
-                <StatBox label="Active Listing" value="12" />
-                <StatBox label="Pending Approvals" value="3" />
-            </View>
-            <View style={styles.fullWidthStatRow}>
-                <StatBox label="Total Views" value="2.45k" />
-            </View>
-
             {/* 8. Subscription / Plan Info */}
             <View style={styles.subscriptionSection}>
                 <Text style={styles.subscriptionTitle}>Subscription / Plan Info</Text>
@@ -153,7 +137,7 @@ const VendorProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#00162A', // Dark background
+        backgroundColor: '#000000ff', // Dark background
     },
     contentContainer: {
         paddingHorizontal: 16,
@@ -169,7 +153,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         marginBottom: 30,
-        backgroundColor: '#0A1E33',
         borderRadius: 12,
         padding: 15,
     },
@@ -219,8 +202,8 @@ const styles = StyleSheet.create({
 
     // --- Info Sections ---
     infoSection: {
-        backgroundColor: '#ffffffff',
-        borderRadius: 12,
+        backgroundColor: '#021e38',
+        borderRadius: 10,
         padding: 15,
         marginBottom: 15,
     },
@@ -232,7 +215,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     infoTitle: {
-        color: '#000000ff',
+        color: '#ffffffff',
         fontSize: 16,
         fontWeight: '700',
     },
@@ -253,55 +236,17 @@ const styles = StyleSheet.create({
     },
     socialIcon: {
         marginRight: 15,
-    },
-
-    // --- Listing Overview Stats ---
-    overviewTitle: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: '700',
-        marginTop: 10,
-        marginBottom: 10,
-
-    },
-    statsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-    },
-    statBox: {
-        backgroundColor: '#ffffffff',
-        borderRadius: 12,
-        padding: 15,
-        width: (width - 48) / 2, // Half width minus padding
-        alignItems: 'center',
-    },
-    fullWidthStatRow: {
-        backgroundColor: '#ffffffff',
-        borderRadius: 12,
-        width:50,
-        marginBottom: 20,
-    },
-    statValue: {
-        color: '#000000ff',
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 5,
-    },
-    statLabel: {
-        color: '#A0AEC0',
-        fontSize: 14,
-        textAlign: 'center',
+        borderRadius:10,
     },
 
     // --- Subscription Info ---
     subscriptionSection: {
-        backgroundColor: '#ffffffff',
-        borderRadius: 12,
+        backgroundColor: '#021e38',
+        borderRadius: 10,
         padding: 15,
     },
     subscriptionTitle: {
-        color: '#000000ff',
+        color: '#ffffffff',
         fontSize: 16,
         fontWeight: '700',
         marginBottom: 10,
@@ -310,13 +255,13 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     planInfo: {
-        color: '#000000ff',
+        color: '#ffffffff',
         fontSize: 14,
         marginBottom: 4,
     },
     planValue: {
-        color: '#000000ff',
-        fontWeight: 'bold',
+        color: '#A0AEC0',
+        fontSize:14
     },
     upgradeRow: {
         flexDirection: 'row',
@@ -330,9 +275,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
     },
     upgradeText: {
-        color: '#ffffffff',
+        color: '#000000ff',
         fontWeight: '600',
         fontSize: 16,
+        padding:4
     },
     upgradeHint: {
         flexDirection: 'row',
@@ -341,7 +287,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     upgradeHintText: {
-        color: '#000000ff',
+        color: '#A0AEC0',
         fontSize: 12,
         marginLeft: 5,
         flexShrink: 1,
