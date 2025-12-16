@@ -91,7 +91,7 @@ const EmailVerificationScreen = ({ navigation, route }) => {
       text1: response.message || 'Email Verified 🎉',
     });
 
-    navigation.navigate('MainTabs');
+    navigation.replace('MainTabs');
   };
 
   return (

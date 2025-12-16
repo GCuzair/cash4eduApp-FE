@@ -2,7 +2,7 @@
 import Toast from 'react-native-toast-message';
 import { Storage } from './Storage';
 
-export const baseURL = "http://192.168.0.112:5000/v1/";
+export const baseURL = "http://192.168.18.11:5000/v1/";
 
 export async function FireApi<TResponse, TBody = unknown>(
   endpoint: string,

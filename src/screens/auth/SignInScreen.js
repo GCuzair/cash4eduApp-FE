@@ -86,8 +86,30 @@ const SignInScreen = ({ navigation }) => {
           text2: response.message || 'Login successful',
         });
 
-        // Navigate based on user type or to main app
-        navigation.navigate('MainTabs'); // or 'VendorDashboard' based on user type
+        // Redirect based on user type
+        const userType = response.user?.user_type;
+        
+        if (userType === 'admin') {
+          navigation.replace('AdminDashboard');
+        } else if (userType === 'vendor') {
+          // Check if vendor has profile
+          if (response.user?.has_profile) {
+            navigation.replace('VendorDashboard');
+          } else {
+            navigation.replace('VendorSetup');
+          }
+        } else if (userType === 'student') {
+          // Check if student has completed profile
+          if (response.user?.has_profile && response.user?.profile_completion_percentage === 100) {
+            navigation.replace('MainTabs');
+          } else {
+            // Redirect to profile completion
+            navigation.replace('PersonalIdentity');
+          }
+        } else {
+          // Default fallback
+          navigation.replace('MainTabs');
+        }
       } else {
         // Login failed
         Toast.show({
@@ -97,6 +119,7 @@ const SignInScreen = ({ navigation }) => {
         });
       }
     } catch (error) {
+      console.error('Login error:', error);
       Toast.show({
         type: 'error',
         text1: 'Error',

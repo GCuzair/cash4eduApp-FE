@@ -5,33 +5,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const GuestRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [shouldNavigateAway, setShouldNavigateAway] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
-    checkUserStatus();
+    checkAuth();
   }, []);
 
-  const checkUserStatus = async () => {
+  const checkAuth = async () => {
     try {
-      // Check if user is already logged in
       const token = await AsyncStorage.getItem('@auth_token');
-      const userData = await AsyncStorage.getItem('@user_data');
-      
-      if (token && userData) {
-        // User is logged in, redirect to main app
-        setShouldNavigateAway(true);
-        navigation.replace('MainTabs');
+      if (token) {
+        setIsLoading(false);
       } else {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Error checking user status:', error);
+      console.error('Error checking auth:', error);
       setIsLoading(false);
     }
   };
 
-  // Show loading indicator
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -40,12 +33,6 @@ const GuestRoute = ({ children }) => {
     );
   }
 
-  // Don't render anything if redirecting
-  if (shouldNavigateAway) {
-    return null;
-  }
-
-  // Render children for guest users
   return children;
 };
 
