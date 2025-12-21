@@ -9,17 +9,199 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
+import { FireApi } from '../../utils/FireApi';
 
 const SignUpScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [contactMethods, setContactMethods] = useState({
-    text: false,
-    email: true,
-    app: false,
+    text_based_notifications: false,
+    email_notification: true,
+    in_app_notification: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [userType, setUserType] = useState('student'); // Default to student
+  const [formData, setFormData] = useState({
+    name: '',
+    birthday: '', // Changed from yearOfBirth
+    email: '',
+    password: '',
+  });
+
+  const validateAndFormatDate = dateStr => {
+    // Check if input is exactly 8 digits
+    if (!/^\d{8}$/.test(dateStr)) {
+      return {
+        isValid: false,
+        message: 'Date must be exactly 8 digits (DDMMYYYY)',
+      };
+    }
+
+    const day = parseInt(dateStr.substring(0, 2));
+    const month = parseInt(dateStr.substring(2, 4));
+    const year = parseInt(dateStr.substring(4, 8));
+
+    // Validate day
+    if (day < 1 || day > 31) {
+      return { isValid: false, message: 'Day must be between 01-31' };
+    }
+
+    // Validate month
+    if (month < 1 || month > 12) {
+      return { isValid: false, message: 'Month must be between 01-12' };
+    }
+
+    // Validate year (reasonable range)
+    if (year < 1900 || year > new Date().getFullYear()) {
+      return {
+        isValid: false,
+        message: 'Year must be between 1900 and current year',
+      };
+    }
+
+    // Check if date is valid (e.g., not 31st Feb)
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getDate() !== day ||
+      date.getMonth() !== month - 1 ||
+      date.getFullYear() !== year
+    ) {
+      return { isValid: false, message: 'Invalid date' };
+    }
+
+    // Format to YYYY-MM-DD
+    const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day
+      .toString()
+      .padStart(2, '0')}`;
+
+    return {
+      isValid: true,
+      formattedDate: formattedDate,
+      displayDate: `${day}/${month}/${year}`, // For displaying back to user if needed
+    };
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const formatDate = dateStr => {
+    // Format DD/MM/YYYY to YYYY-MM-DD
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
+
+  const handleSignUp = async () => {
+    // Validate all required fields
+    if (
+      !formData.name ||
+      !formData.birthday ||
+      !formData.email ||
+      !formData.password
+    ) {
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Please fill all required fields',
+      });
+      return;
+    }
+
+    // Validate and format date (DDMMYYYY format)
+    const dateValidation = validateAndFormatDate(formData.birthday);
+    if (!dateValidation.isValid) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Date',
+        text2: dateValidation.message,
+      });
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Email',
+        text2: 'Please enter a valid email address',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Use the formatted date from validation
+      const formattedDate = dateValidation.formattedDate;
+
+      // Prepare payload according to API requirements
+      const requestData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        user_type: userType,
+        birthday: formattedDate, // Now in YYYY-MM-DD format
+        email_notification: contactMethods.email_notification,
+        in_app_notification: contactMethods.in_app_notification,
+        text_based_notifications: contactMethods.text_based_notifications,
+      };
+
+      console.log('Sending payload:', requestData);
+
+      const response = await FireApi('create-user', 'POST', {}, requestData);
+
+      if (response && response.success === true) {
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: response.message || 'OTP sent to your email',
+        });
+
+        navigation.navigate('Otp', {
+          email: formData.email,
+          name: formData.name,
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Sign Up Failed',
+          text2: response?.message || 'Unable to create account',
+        });
+      }
+    } catch (error) {
+      console.error('Sign up error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Network Error',
+        text2: 'Please check your connection and try again',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <LinearGradient
+        colors={['#051622', '#000000']}
+        style={styles.loadingContainer}
+      >
+        <ActivityIndicator size="large" color="#03A2D5" />
+        <Text style={styles.loadingText}>Creating your account...</Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient colors={['#051622', '#000000']} style={{ flex: 1 }}>
@@ -55,23 +237,65 @@ const SignUpScreen = ({ navigation }) => {
             {/* Title */}
             <Text style={styles.title}>Create your account</Text>
             <Text style={styles.subtitle}>
-              Create your profile and access exclusive scholarship offers.
+              Create your profile and access exclusive opportunities.
             </Text>
 
             {/* Form */}
             <View style={styles.formBox}>
+              {/* User Type Selection */}
+              <Text style={styles.label}>I am a*</Text>
+              <View style={styles.userTypeContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.userTypeButton,
+                    userType === 'student' && styles.userTypeButtonActive,
+                  ]}
+                  onPress={() => setUserType('student')}
+                >
+                  <Text
+                    style={[
+                      styles.userTypeText,
+                      userType === 'student' && styles.userTypeTextActive,
+                    ]}
+                  >
+                    Student
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.userTypeButton,
+                    userType === 'vendor' && styles.userTypeButtonActive,
+                  ]}
+                  onPress={() => setUserType('vendor')}
+                >
+                  <Text
+                    style={[
+                      styles.userTypeText,
+                      userType === 'vendor' && styles.userTypeTextActive,
+                    ]}
+                  >
+                    Vendor
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               <Text style={styles.label}>Full name*</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Enter your full name"
                 placeholderTextColor="#aaa"
+                value={formData.name}
+                onChangeText={text => handleInputChange('name', text)}
               />
 
-              <Text style={styles.label}>Year of birth*</Text>
+              <Text style={styles.label}>Date of birth*</Text>
               <TextInput
                 style={styles.input}
-                placeholder="DD/MM/YYYY"
+                placeholder="DDMMYYYY (e.g., 02042004 for 2nd April 2004)"
                 placeholderTextColor="#aaa"
+                value={formData.birthday}
+                onChangeText={text => handleInputChange('birthday', text)}
+                maxLength={8}
                 keyboardType="numeric"
               />
 
@@ -82,6 +306,8 @@ const SignUpScreen = ({ navigation }) => {
                 placeholderTextColor="#aaa"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                value={formData.email}
+                onChangeText={text => handleInputChange('email', text)}
               />
 
               <Text style={styles.label}>Password*</Text>
@@ -91,6 +317,8 @@ const SignUpScreen = ({ navigation }) => {
                   placeholder="Enter your password"
                   placeholderTextColor="#aaa"
                   secureTextEntry={!showPassword}
+                  value={formData.password}
+                  onChangeText={text => handleInputChange('password', text)}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -108,14 +336,32 @@ const SignUpScreen = ({ navigation }) => {
               <Text style={styles.label}>Preferred Contact Method*</Text>
               <View style={styles.checkboxContainer}>
                 {[
-                  { key: 'text', label: 'Text' },
-                  { key: 'email', label: 'Email' },
-                  { key: 'app', label: 'In-app Notifications' },
-                ].map(({ key, label }) => (
+                  {
+                    key: 'text_based_notifications',
+                    label: 'Text',
+                    icon: contactMethods.text_based_notifications
+                      ? 'checkbox'
+                      : 'square-outline',
+                  },
+                  {
+                    key: 'email_notification',
+                    label: 'Email',
+                    icon: contactMethods.email_notification
+                      ? 'checkbox'
+                      : 'square-outline',
+                  },
+                  {
+                    key: 'in_app_notification',
+                    label: 'In-app Notifications',
+                    icon: contactMethods.in_app_notification
+                      ? 'checkbox'
+                      : 'square-outline',
+                  },
+                ].map(({ key, label, icon }) => (
                   <TouchableOpacity
                     key={key}
                     onPress={() =>
-                      setContactMethods((prev) => ({
+                      setContactMethods(prev => ({
                         ...prev,
                         [key]: !prev[key],
                       }))
@@ -123,13 +369,7 @@ const SignUpScreen = ({ navigation }) => {
                     style={styles.checkboxItem}
                     activeOpacity={0.8}
                   >
-                    <Icon
-                      name={
-                        contactMethods[key] ? 'checkbox' : 'square-outline'
-                      }
-                      size={22}
-                      color="#03A2D5"
-                    />
+                    <Icon name={icon} size={22} color="#03A2D5" />
                     <Text style={styles.checkboxLabel}>{label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -140,9 +380,12 @@ const SignUpScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.nextBtn}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('Otp')}
+              onPress={handleSignUp}
+              disabled={loading}
             >
-              <Text style={styles.nextText}>Next</Text>
+              <Text style={styles.nextText}>
+                {loading ? 'Creating Account...' : 'Next'}
+              </Text>
             </TouchableOpacity>
 
             {/* Footer */}
@@ -158,6 +401,7 @@ const SignUpScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <Toast />
     </LinearGradient>
   );
 };
@@ -199,6 +443,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '600',
     textAlign: 'center',
+    marginTop: 20,
   },
   subtitle: {
     color: '#BDBDBD',
@@ -206,14 +451,43 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     fontSize: 13,
     paddingHorizontal: 10,
+    marginBottom: 20,
   },
   formBox: {
     marginTop: 10,
+  },
+  userTypeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  userTypeButton: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderColor: '#03A2D5',
+    borderRadius: 6,
+    marginHorizontal: 5,
+  },
+  userTypeButtonActive: {
+    backgroundColor: '#03A2D5',
+  },
+  userTypeText: {
+    color: '#03A2D5',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  userTypeTextActive: {
+    color: '#000',
+    fontWeight: '600',
   },
   label: {
     color: '#fff',
     fontSize: 14,
     marginBottom: 5,
+    marginTop: 10,
   },
   input: {
     backgroundColor: '#000',
@@ -284,5 +558,15 @@ const styles = StyleSheet.create({
   link: {
     color: '#fff',
     fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 20,
+    fontSize: 16,
   },
 });

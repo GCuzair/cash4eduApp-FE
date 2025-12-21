@@ -11,17 +11,145 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
+import { FireApi } from '../../utils/FireApi';
+import { Storage } from '../../utils/Storage';
 
 const SignInScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSignIn = async () => {
+    if (!formData.email || !formData.password) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please fill all fields',
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Email',
+        text2: 'Please enter valid email',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        email: formData.email,
+        password: formData.password,
+      };
+
+      const response = await FireApi('login', 'POST', {}, payload);
+
+      if (!response) {
+        return;
+      }
+
+      // Check if response has success property
+      if (response && response.success === true) {
+        if (response?.token) {
+          await Storage.setToken(response.token);
+        }
+
+        if (response?.user) {
+          await Storage.setUser(response.user);
+        }
+
+        // Login successful
+        Toast.show({
+          type: 'success',
+          text1: 'Welcome!',
+          text2: response.message || 'Login successful',
+        });
+
+        // IMPORTANT: First navigate to a dummy screen then reset
+        // This is a workaround for React Navigation issue
+        
+        const userType = response.user?.user_type;
+        let targetScreen = 'SignIn'; // default fallback
+        
+        if (userType === 'admin') {
+          targetScreen = 'AdminDashboard';
+        } else if (userType === 'vendor') {
+          // Check if vendor has profile
+          if (response.user?.has_profile) {
+            targetScreen = 'VendorDashboard';
+          } else {
+            targetScreen = 'VendorDashboard'; // or 'VendorSetup' if you have this screen
+          }
+        } else if (userType === 'student') {
+          // Check if student has completed profile
+          if (response.user?.has_profile && response.user?.has_profile === true) {
+            targetScreen = 'MainTabs';
+          } else {
+            // Redirect to profile completion
+            targetScreen = 'PersonalIdentity';
+          }
+        }
+        
+        // RESET the navigation stack
+        navigation.reset({
+          index: 0,
+          routes: [{ name: targetScreen }],
+        });
+        
+      } else {
+        // Login failed
+        Toast.show({
+          type: 'error',
+          text1: 'Login Failed',
+          text2: response?.message || 'Invalid email or password',
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Network error. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add a function to handle navigation with delay (alternative approach)
+  const navigateWithReset = (screenName) => {
+    // Small delay to ensure state is saved
+    setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: screenName }],
+      });
+    }, 100);
+  };
 
   return (
     <LinearGradient colors={['#051622', '#000000']} style={{ flex: 1 }}>
-      {/* Top Gradient Layer */}
       <LinearGradient
         colors={['#51E3FC', '#03A2D5', '#021E38', '#000']}
         style={styles.gradientTop}
@@ -38,7 +166,6 @@ const SignInScreen = ({ navigation }) => {
               contentContainerStyle={{ paddingBottom: 40 }}
               keyboardShouldPersistTaps="handled"
             >
-              {/* Back Icon */}
               <TouchableOpacity
                 style={styles.backIcon}
                 onPress={() => navigation.goBack()}
@@ -50,19 +177,16 @@ const SignInScreen = ({ navigation }) => {
                 />
               </TouchableOpacity>
 
-              {/* Logo */}
               <Image
                 source={require('../../assets/images/Logo2.png')}
                 style={styles.logo}
               />
 
-              {/* Headings */}
               <Text style={styles.title}>Welcome Back!</Text>
               <Text style={styles.subtitle}>
                 Connecting you to smarter financial opportunities.
               </Text>
 
-              {/* Email */}
               <Text style={styles.label}>Email address*</Text>
               <TextInput
                 style={styles.input}
@@ -70,9 +194,10 @@ const SignInScreen = ({ navigation }) => {
                 placeholderTextColor="#aaa"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                value={formData.email}
+                onChangeText={text => handleInputChange('email', text)}
               />
 
-              {/* Password */}
               <Text style={styles.label}>Password*</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
@@ -80,6 +205,8 @@ const SignInScreen = ({ navigation }) => {
                   placeholder="Enter your password"
                   placeholderTextColor="#aaa"
                   secureTextEntry={!showPassword}
+                  value={formData.password}
+                  onChangeText={text => handleInputChange('password', text)}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -92,7 +219,6 @@ const SignInScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
 
-              {/* Remember Me + Forgot */}
               <View style={styles.rememberForgotRow}>
                 <TouchableOpacity
                   style={styles.rememberMeContainer}
@@ -106,22 +232,25 @@ const SignInScreen = ({ navigation }) => {
                   <Text style={styles.rememberMeText}> Remember me</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('forgotPassword')}>
                   <Text style={styles.forgot}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
 
-              {/* Sign-In Button */}
               <TouchableOpacity
-                style={styles.signinBtn}
-                onPress={() => navigation.navigate('VendorSetup')}
+                style={[styles.signinBtn, loading && styles.disabledBtn]}
+                onPress={handleSignIn}
+                disabled={loading}
               >
-                <Text style={styles.signinText}>Sign in</Text>
+                {loading ? (
+                  <ActivityIndicator color="#03A2D5" />
+                ) : (
+                  <Text style={styles.signinText}>Sign in</Text>
+                )}
               </TouchableOpacity>
 
-              {/* Footer */}
               <Text style={styles.footer}>
-                Don’t have an account?{' '}
+                Don't have an account?{' '}
                 <Text
                   onPress={() => navigation.navigate('SignUp')}
                   style={styles.link}
@@ -240,6 +369,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 6,
     elevation: 10,
+  },
+  disabledBtn: {
+    opacity: 0.7,
   },
   signinText: {
     color: '#03A2D5',

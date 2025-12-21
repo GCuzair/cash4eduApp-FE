@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Switch } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 // Assuming this is the path to your reusable header component structure
 import VendorHeader from '../../components/VendorHeader';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { FireApi } from '../../utils/FireApi';
 // LinearGradient and Checkbox from react-native-paper/external are imported 
 // but not strictly used in the current implementation to keep it dependency-minimal.
 
@@ -40,13 +41,14 @@ const ScholarshipListing = () => {
     const [awardAmount, setAwardAmount] = useState('');
     const [awardCount, setAwardCount] = useState('');
     const [applicationLink, setApplicationLink] = useState('');
-    const [rewardProcess, setRewardProcess] = useState('Direct to School'); // Simulated dropdown value
+    const [rewardProcess, setRewardProcess] = useState('Direct to School');
     const [renewalEnabled, setRenewalEnabled] = useState(false); 
     const [documents, setDocuments] = useState({
         essay: true, recommendation: false, resume: true, portfolio: false,
         transcript: true, idVerification: false,
     });
     const eligibilityCriteria = ['GPA', 'School Year', 'Major'];
+
 
 
     // --- HANDLERS ---
@@ -134,12 +136,10 @@ const ScholarshipListing = () => {
                     </View>
                 </ScrollView>
 
-                <View style={styles.basicInfoCont}>
+                {/* <View style={styles.basicInfoCont}>
 
-                    {/* Basic Information Header */}
                     <Text style={styles.formHeader}>Basic Information</Text>
 
-                    {/* 1. Award Amount Input */}
                     <Text style={styles.label}>Award Amount*</Text>
                     <TextInput
                         style={styles.input}
@@ -150,7 +150,6 @@ const ScholarshipListing = () => {
                         keyboardType="numeric"
                     />
 
-                    {/* 2. Number of Awards Available Input */}
                     <Text style={styles.label}>Number of Awards Available*</Text>
                     <TextInput
                         style={styles.input}
@@ -161,7 +160,6 @@ const ScholarshipListing = () => {
                         keyboardType="numeric"
                     />
 
-                    {/* 3. Eligibility Criteria Section */}
                     <Text style={styles.label}>Eligibility Criteria*</Text>
                     <View style={styles.chipsContainer}>
                         {eligibilityCriteria.map((criterion, index) => (
@@ -173,7 +171,6 @@ const ScholarshipListing = () => {
                         ))}
                     </View>
 
-                    {/* 4. Required Documents Checkboxes */}
                     <Text style={styles.label}>Required Documents*</Text>
                     <View style={styles.documentsGrid}>
                         <CheckboxItem label="Essay" value={documents.essay} onPress={() => toggleDocument('essay')} />
@@ -184,7 +181,6 @@ const ScholarshipListing = () => {
                         <CheckboxItem label="ID Verification" value={documents.idVerification} onPress={() => toggleDocument('idVerification')} />
                     </View>
 
-                    {/* 5. Application Process Input */}
                     <Text style={styles.label}>Application Process</Text>
                     <TextInput
                         style={styles.input}
@@ -194,14 +190,12 @@ const ScholarshipListing = () => {
                         onChangeText={setApplicationLink}
                     />
 
-                    {/* 6. Reward Process Dropdown (Simulated) */}
                     <Text style={styles.label}>Reward Process</Text>
                     <TouchableOpacity style={styles.dropdown}>
                         <Text style={styles.dropdownText}>{rewardProcess}</Text>
                         <Ionicons name="chevron-down" size={20} color="white" />
                     </TouchableOpacity>
 
-                    {/* 7. Renewal Status Switch */}
                     <View style={styles.renewalRow}>
                         <Text style={styles.label}>Renewal Status</Text>
                         <Switch
@@ -211,18 +205,18 @@ const ScholarshipListing = () => {
                             thumbColor={renewalEnabled ? '#fff' : '#f4f3f4'}
                         />
                     </View>
-                </View>
+                </View> */}
 
 
                 {/* CANCEL BUTTON */}
-                <TouchableOpacity style={styles.blueBtn}>
+                {/* <TouchableOpacity style={styles.blueBtn}>
                     <Text style={styles.blueBtnTxt}>Cancel</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {/* PUBLISH BUTTON */}
-                <TouchableOpacity style={styles.borderBtn}>
+                {/* <TouchableOpacity style={styles.borderBtn}>
                     <Text style={styles.borderBtnTxt}>Publish</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <View style={{ height: 50 }} />
 

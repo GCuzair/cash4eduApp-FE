@@ -1,16 +1,114 @@
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useContext } from 'react';
 import VendorHeader from '../../components/VendorHeader';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 const Setting = () => {
     const navigation = useNavigation();
-
+    const { logout } = useContext(AuthContext); // Get logout function from context
+    
     const [notify, setNotify] = useState(true);
     const [darkMode, setDarkMode] = useState(true);
+
+    // Handle logout function
+    const handleLogout = async () => {
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to logout?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            // If using AuthContext
+                            if (logout) {
+                                const result = await logout();
+                                if (result.success) {
+                                    navigateToLogin();
+                                } else {
+                                    Alert.alert("Error", result.error || "Failed to logout");
+                                }
+                            } else {
+                                // Manual logout
+                                await manualLogout();
+                            }
+                        } catch (error) {
+                            console.error("Logout error:", error);
+                            Alert.alert("Error", "Failed to logout");
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
+    // Manual logout function
+    const manualLogout = async () => {
+        try {
+            // Clear all stored data
+            await AsyncStorage.multiRemove([
+                '@auth_token',
+                '@user_data',
+                '@user_type',
+                '@remember_me'
+            ]);
+            
+            navigateToLogin();
+        } catch (error) {
+            console.error("Manual logout error:", error);
+            Alert.alert("Error", "Failed to clear session data");
+        }
+    };
+
+    // Navigate to login screen
+    const navigateToLogin = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'SignIn' }],
+        });
+    };
+
+    // Handle row item press
+    const handleRowPress = (title) => {
+        switch (title) {
+            case "Account":
+                navigation.navigate('VendorProfile');
+                break;
+            case "Language":
+                navigation.navigate('LanguageSettings');
+                break;
+            case "Security":
+                navigation.navigate('SecuritySettings');
+                break;
+            case "Terms & Conditions":
+                navigation.navigate('TermsAndConditions');
+                break;
+            case "Privacy Policy":
+                navigation.navigate('PrivacyPolicy');
+                break;
+            case "Help":
+                navigation.navigate('HelpCenter');
+                break;
+            case "Invite a friend":
+                Alert.alert("Invite", "Invite feature coming soon!");
+                break;
+            case "Logout":
+                handleLogout();
+                break;
+            default:
+                console.log(`Pressed: ${title}`);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -34,6 +132,7 @@ const Setting = () => {
                         icon={<Ionicons name="person-outline" size={20} color="#fff" />}
                         title="Account"
                         arrow
+                        onPress={() => handleRowPress("Account")}
                     />
 
                     <Divider />
@@ -62,6 +161,7 @@ const Setting = () => {
                         icon={<Ionicons name="globe-outline" size={20} color="#fff" />}
                         title="Language"
                         arrow
+                        onPress={() => handleRowPress("Language")}
                     />
                 </View>
 
@@ -71,6 +171,7 @@ const Setting = () => {
                         icon={<Ionicons name="shield-checkmark-outline" size={20} color="#fff" />}
                         title="Security"
                         arrow
+                        onPress={() => handleRowPress("Security")}
                     />
 
                     <Divider />
@@ -79,6 +180,7 @@ const Setting = () => {
                         icon={<Ionicons name="document-text-outline" size={20} color="#fff" />}
                         title="Terms & Conditions"
                         arrow
+                        onPress={() => handleRowPress("Terms & Conditions")}
                     />
 
                     <Divider />
@@ -87,6 +189,7 @@ const Setting = () => {
                         icon={<Ionicons name="lock-closed-outline" size={20} color="#fff" />}
                         title="Privacy Policy"
                         arrow
+                        onPress={() => handleRowPress("Privacy Policy")}
                     />
 
                     <Divider />
@@ -95,6 +198,7 @@ const Setting = () => {
                         icon={<Ionicons name="help-circle-outline" size={20} color="#fff" />}
                         title="Help"
                         arrow
+                        onPress={() => handleRowPress("Help")}
                     />
                 </View>
 
@@ -104,6 +208,7 @@ const Setting = () => {
                         icon={<Ionicons name="share-social-outline" size={20} color="#fff" />}
                         title="Invite a friend"
                         arrow
+                        onPress={() => handleRowPress("Invite a friend")}
                     />
 
                     <Divider />
@@ -111,6 +216,8 @@ const Setting = () => {
                     <Row
                         icon={<Ionicons name="log-out-outline" size={20} color="#fff" />}
                         title="Logout"
+                        onPress={() => handleRowPress("Logout")}
+                        isLogout={true} // Add this prop
                     />
                 </View>
 
@@ -120,12 +227,16 @@ const Setting = () => {
 };
 
 /* ------------ Row Component ------------ */
-const Row = ({ icon, title, arrow, toggle, value, onValueChange }) => {
+const Row = ({ icon, title, arrow, toggle, value, onValueChange, onPress, isLogout = false }) => {
     return (
-        <View style={styles.row}>
+        <TouchableOpacity 
+            style={styles.row} 
+            onPress={onPress}
+            activeOpacity={0.7}
+        >
             <View style={styles.rowLeft}>
                 {icon}
-                <Text style={styles.rowText}>{title}</Text>
+                <Text style={[styles.rowText, isLogout && styles.logoutText]}>{title}</Text>
             </View>
 
             {toggle ? (
@@ -139,7 +250,7 @@ const Row = ({ icon, title, arrow, toggle, value, onValueChange }) => {
             ) : arrow ? (
                 <Ionicons name="chevron-forward" size={20} color="#fff" />
             ) : null}
-        </View>
+        </TouchableOpacity>
     );
 };
 

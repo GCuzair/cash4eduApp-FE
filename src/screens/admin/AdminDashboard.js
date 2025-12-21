@@ -21,7 +21,7 @@ const pendingActions = [
     badge: 8,
     badgeColor: '#ef4444', // red
     buttonText: 'Review',
-
+    screenName: 'VendorManagement',
   },
   {
     id: 2,
@@ -31,6 +31,7 @@ const pendingActions = [
     badge: 12,
     badgeColor: '#12db00', // green
     buttonText: 'Approve',
+    screenName: 'ManageListing',
   },
   {
     id: 3,
@@ -40,6 +41,7 @@ const pendingActions = [
     badge: 5,
     badgeColor: '#FFc947', // yellow/orange
     buttonText: 'Review',
+    screenName: 'ContentManagement',
   },
   {
     id: 4,
@@ -49,10 +51,11 @@ const pendingActions = [
     badge: 3,
     badgeColor: '#a855f7', // purple
     buttonText: 'View',
+    screenName: 'AnalyticsReporting',
   },
 ];
 
-const DashboardScreen = () => {
+const DashboardScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -73,7 +76,7 @@ const DashboardScreen = () => {
 
         <Text style={styles.welcomeText}>Welcome back, Admin</Text>
         <Text style={styles.subtitle}>
-          Here’s what’s happening across Cash 4 Edu this week
+          Here's what's happening across Cash 4 Edu this week
         </Text>
         <Text style={styles.updateText}>
           Last updated: Oct 29, 2025, 09:00 PST
@@ -88,24 +91,30 @@ const DashboardScreen = () => {
           contentContainerStyle={styles.scrollContainer}
         >
           {/* Active Users Card */}
-          <View style={styles.card}>
+          <TouchableOpacity 
+            style={styles.card}
+            onPress={() => navigation.navigate('StudentManagement')}
+          >
             <View style={styles.users}>
               <FontAwesome5 name="user" size={18} color="#51e3fc" />
               <Text style={styles.cardTitle}>Active Users</Text>
             </View>
             <Text style={styles.cardValue}>12,450</Text>
             <Text style={styles.cardSubText}>+3.5% from last week</Text>
-          </View>
+          </TouchableOpacity>
 
           {/* Scholarship Card */}
-          <View style={styles.card}>
+          <TouchableOpacity 
+            style={styles.card}
+            onPress={() => navigation.navigate('Scholarship')}
+          >
             <View style={styles.users}>
               <FontAwesome5 name="graduation-cap" size={18} color="#7B61FF" />
               <Text style={styles.cardTitle}>Scholarship</Text>
             </View>
             <Text style={styles.cardValue}>820</Text>
             <Text style={styles.scholarshipText}>+5 New</Text>
-          </View>
+          </TouchableOpacity>
         </ScrollView>
 
         {/* Recent Activity Feed */}
@@ -132,7 +141,11 @@ const DashboardScreen = () => {
         <View style={styles.pendingContainer}>
           <Text style={styles.pendingHeader}>Pending Actions</Text>
           {pendingActions.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.pendingCard}>
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.pendingCard}
+              onPress={() => navigation.navigate(item.screenName)}
+            >
               <View style={styles.cardLeft}>
                 <View style={styles.iconContainer}>
                   <FontAwesome5 name={item.icon} size={20} color="#4FC3F7" />
@@ -154,20 +167,37 @@ const DashboardScreen = () => {
 
         <View style={styles.recentCont}>
           <Text style={styles.textRecent}>Quick Access</Text>
-          <View style={styles.userManage}>
-            <Text style={styles.userTitle}>User Management</Text>
-            <Text style={styles.userSubTitle}>Manage Users</Text>
-          </View>
+          
+          {/* User Management Section */}
+          <TouchableOpacity 
+            style={styles.userManage}
+            onPress={() => navigation.navigate('StudentManagement')}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.userTitle}>User Management</Text>
+              <Text style={styles.userSubTitle}>Manage Users</Text>
+            </View>
+            <AntDesign name="right" size={20} color="#51e3fc" />
+          </TouchableOpacity>
+          
           <View style={{ marginTop: 10 }}>
             <Text style={{ color: 'gray' }}>Active Students: 12,480</Text>
             <Text style={{ color: 'gray' }}>Vendors: 310</Text>
             <Text style={{ color: 'gray' }}>Admin: 6</Text>
           </View>
 
-          <View style={styles.userManage}>
-            <Text style={styles.userTitle}>Content Overview</Text>
-            <Text style={styles.userSubTitle}>Manage Content</Text>
-          </View>
+          {/* Content Overview Section */}
+          <TouchableOpacity 
+            style={styles.userManage}
+            onPress={() => navigation.navigate('ContentManagement')}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.userTitle}>Content Overview</Text>
+              <Text style={styles.userSubTitle}>Manage Content</Text>
+            </View>
+            <AntDesign name="right" size={20} color="#51e3fc" />
+          </TouchableOpacity>
+          
           <View style={{ marginTop: 10 }}>
             <Text style={{ color: 'gray' }}>Active Scholarships: 820</Text>
             <Text style={{ color: 'gray' }}>Educational Videos: 1,024</Text>
@@ -175,27 +205,39 @@ const DashboardScreen = () => {
           </View>
         </View>
 
+        {/* Settings Section */}
+        <TouchableOpacity 
+          style={styles.recentCont}
+          onPress={() => navigation.navigate('AdminSetting')}
+        >
+          <View style={styles.userManage}>
+            <Text style={styles.userTitle}>Settings</Text>
+            <AntDesign name="right" size={20} color="#51e3fc" />
+          </View>
+          <Text style={{ color: 'gray', marginTop: 5 }}>
+            Manage system settings and preferences
+          </Text>
+        </TouchableOpacity>
+
+        {/* System Alerts Section */}
         <View style={styles.sysCont}>
           <Text style={styles.textRecent}>System Alerts</Text>
 
-        <View style={styles.sysinner}>
-          <Foundation name='alert' size={28} color='#ef4444' style={{marginTop:5}}/>
-          <View>
-            <Text style={styles.userTitle}>Scheduled Maintenance</Text>
-            <Text style={{color:'#bcbcbcff',fontSize:14}}>Nov 2,2025 - 12:00 AM to 3:00 AM PST</Text>
+          <View style={styles.sysinner}>
+            <Foundation name='alert' size={28} color='#ef4444' style={{marginTop:5}}/>
+            <View>
+              <Text style={styles.userTitle}>Scheduled Maintenance</Text>
+              <Text style={{color:'#bcbcbcff',fontSize:14}}>Nov 2,2025 - 12:00 AM to 3:00 AM PST</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.sysinner2}>
-          <FontAwesome5 name='info-circle' size={28} color='#03a2d5' style={{marginTop:5}}/>
-          <View>
-            <Text style={styles.userTitle}>Token Rate Update</Text>
-            <Text style={{color:'#bcbcbcff',fontSize:14}}>New conversion logic effective Nov 5</Text>
+          <View style={styles.sysinner2}>
+            <FontAwesome5 name='info-circle' size={28} color='#03a2d5' style={{marginTop:5}}/>
+            <View>
+              <Text style={styles.userTitle}>Token Rate Update</Text>
+              <Text style={{color:'#bcbcbcff',fontSize:14}}>New conversion logic effective Nov 5</Text>
+            </View>
           </View>
-        </View>
-        <View>
-
-        </View>
         </View>
       </ScrollView>
     </View>
@@ -233,13 +275,14 @@ const styles = StyleSheet.create({
   userManage: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 20,
   },
   badgeWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 20,
-    width: 60, // fixed width so all cards align evenly
+    width: 60,
   },
   innerCont: {
     flexDirection: 'row',
@@ -262,7 +305,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 15,
     padding: 10,
-    
   },
   users: {
     flexDirection: 'row',
@@ -350,8 +392,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-
-  // Pending Actions styles
   pendingContainer: {
     marginTop: 20,
   },
@@ -361,34 +401,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 12,
   },
-  pendingCardCircle: {
-    alignItems: 'center',
-    backgroundColor: '#021e38',
-    padding: 12,
-    borderRadius: 12,
-    marginRight: 12,
-    width: 100,
-  },
-  circle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  circleText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  circleLabel: {
-    color: '#fff',
-    fontSize: 12,
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-
   pendingCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -429,13 +441,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-
   digitBadge: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 12,
   },
-
   badgeText: {
     color: '#fff',
     fontSize: 10,

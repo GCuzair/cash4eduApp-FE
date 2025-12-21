@@ -1,23 +1,30 @@
-import React from 'react';
-import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native';
-// Retaining original imports for compatibility
-import { TextInput } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { 
+  StyleSheet, 
+  View, 
+  Text, 
+  Dimensions, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image,
+  ActivityIndicator 
+} from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-
-// Removed unused icons (AntDesign, Ionicons) for cleanup
+import { FireApi } from '../../utils/FireApi';
+import Toast from 'react-native-toast-message';
+import VendorBottomTabs from '../../navigation/VendorBottomTabs';
 
 // Get screen width for responsive layout
 const { width } = Dimensions.get('window');
 
 // Helper function to bold the listing title (text within quotes)
 const getFormattedTitle = (text) => {
-    // Find the content inside the first pair of single or double quotes
     const match = text.match(/('([^']+)'|"([^"]+)")/);
     if (!match) return <Text style={styles.cardText}>{text}</Text>;
 
@@ -33,27 +40,19 @@ const getFormattedTitle = (text) => {
     );
 };
 
-// --- Component for Recent Activity Cards (MATCHING IMAGE DESIGN) ---
+// --- Component for Recent Activity Cards ---
 const ActivityCard = ({ title, time, iconName }) => {
     return (
         <LinearGradient
-            // Define the dark blue gradient colors
             colors={['#03a2d5', '#000000ff']}
-            // Define the gradient direction (e.g., top-left to bottom-right)
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            // 2. We use the original cardContainer styling for size/layout
             style={styles.cardContainer}
         >
-            {/* Icon Area */}
             <View style={styles.iconWrapper}>
-                {/* iconName is expected to be a MaterialCommunityIcons name */}
                 <Icon name={iconName} size={30} color="#FFFFFF" />
             </View>
-
-            {/* Text Content */}
             <View style={styles.textContainer}>
-                {/* Apply formatting to bold the listing name/key phrase */}
                 {getFormattedTitle(title)}
                 <Text style={styles.timeText}>{time}</Text>
             </View>
@@ -64,7 +63,6 @@ const ActivityCard = ({ title, time, iconName }) => {
 // --- ProgressBar Component ---
 const ProgressBar = ({ progress = 80 }) => {
     const fillWidth = `${progress}%`;
-
     return (
         <View style={styles.containerLine}>
             <Text style={styles.label}>{progress}%</Text>
@@ -80,46 +78,188 @@ const ProgressBar = ({ progress = 80 }) => {
     );
 };
 
+// --- Stat Card Component ---
+const StatCard = ({ icon, iconColor, title, value, subText, subTextColor }) => {
+    return (
+        <View style={styles.card}>
+            <View style={styles.users}>
+                {icon}
+                <Text style={styles.cardTitle}>{title}</Text>
+            </View>
+            <Text style={styles.cardValue}>{value}</Text>
+            <Text style={[styles.cardSubText, { color: subTextColor }]}>{subText}</Text>
+        </View>
+    );
+};
+
 // --- Main Screen Component ---
 const VendorDashboardScreen = () => {
     const navigation = useNavigation();
-    const progress = 80;
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+        scholarships: { total: 0, live: 0, pending_review: 0 },
+        perks: { total: 0, live: 0 },
+        tuition: { total: 0, live: 0 },
+        videos: { total: 0, live: 0 },
+        applications: { total: 0, pending: 0, approved: 0 }
+    });
+    const [recentListings, setRecentListings] = useState([]);
+    const [profileProgress, setProfileProgress] = useState(80);
 
-    // Recent activity data matching the new design and structure
-    const recentActivities = [
-        {
-            id: 1,
-            iconName: 'layers-triple-outline', // Used for views/listing stack icon
-            title: 'Your Listing "Tech Scholarship" got 15 new views this week',
-            time: '3 Hours ago',
-        },
-        {
-            id: 2,
-            iconName: 'hand-pointing-up', // Used for new applicant/tap icon
-            title: 'New Applicant for "Design Fellowship"',
-            time: '3 Days ago',
-        },
-        {
-            id: 3,
-            iconName: 'clock-time-four-outline', // Used for expiration/clock icon
-            title: 'Your Listing for "Creative Arts Grant" expires in 7 days',
-            time: '3 Hours ago',
-        },
-    ];
+    // Fetch dashboard data
+    const fetchVendorDashboard = async () => {
+        try {
+            setLoading(true);
+            const response = await FireApi('vendor/listings', 'GET');
+            
+            if (response && response.success && response.data) {
+                const data = response.data;
+                
+                // Update statistics
+                setStats({
+                    scholarships: data.statistics?.scholarships || { total: 0, live: 0, pending_review: 0 },
+                    perks: data.statistics?.perks || { total: 0, live: 0 },
+                    tuition: data.statistics?.tuition || { total: 0, live: 0 },
+                    videos: data.statistics?.videos || { total: 0, live: 0 },
+                    applications: data.statistics?.applications || { total: 0, pending: 0, approved: 0 }
+                });
+
+                // Update recent listings
+                if (data.scholarships && Array.isArray(data.scholarships)) {
+                    const formattedListings = data.scholarships.slice(0, 3).map((scholarship, index) => ({
+                        id: scholarship.id,
+                        iconName: getIconForStatus(scholarship.status),
+                        title: `Your listing "${scholarship.listing_title}" is ${getStatusText(scholarship.status)}`,
+                        time: getTimeText(scholarship.deadline)
+                    }));
+                    setRecentListings(formattedListings);
+                }
+
+                const totalListings = data.total_listings || 0;
+                const progress = Math.min(100, 20 + (totalListings * 10));
+                setProfileProgress(progress);
+
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: response?.message || 'Failed to load dashboard data'
+                });
+            }
+        } catch (error) {
+            console.error('Dashboard fetch error:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Failed to load dashboard data'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Helper functions
+    const getIconForStatus = (status) => {
+        switch (status) {
+            case 'pending_review':
+                return 'clock-time-four-outline';
+            case 'published':
+            case 'live':
+                return 'check-circle-outline';
+            case 'draft':
+                return 'file-document-edit-outline';
+            default:
+                return 'layers-triple-outline';
+        }
+    };
+
+    const getStatusText = (status) => {
+        switch (status) {
+            case 'pending_review':
+                return 'pending review';
+            case 'published':
+            case 'live':
+                return 'live';
+            case 'draft':
+                return 'saved as draft';
+            default:
+                return status;
+        }
+    };
+
+    const getTimeText = (deadline) => {
+        if (!deadline) return 'Recently';
+        
+        const deadlineDate = new Date(deadline);
+        const now = new Date();
+        const diffTime = Math.abs(deadlineDate - now);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) return 'Today';
+        if (diffDays === 1) return 'Tomorrow';
+        if (diffDays < 7) return `${diffDays} days remaining`;
+        if (diffDays < 30) return `${Math.floor(diffDays/7)} weeks remaining`;
+        return 'Over a month remaining';
+    };
+
+    // Load data when screen is focused
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchVendorDashboard();
+            return () => {};
+        }, [])
+    );
+
+    // Load data on initial mount
+    useEffect(() => {
+        fetchVendorDashboard();
+    }, []);
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#03A2D5" />
+            </View>
+        );
+    }
+
+    // Prepare recent activities from API data
+    const recentActivities = recentListings.length > 0 
+        ? recentListings 
+        : [
+            {
+                id: 1,
+                iconName: 'layers-triple-outline',
+                title: 'Create your first listing to get started',
+                time: 'Get started now',
+            },
+            {
+                id: 2,
+                iconName: 'hand-pointing-up',
+                title: 'Complete your profile to boost visibility',
+                time: 'Increase your reach',
+            },
+            {
+                id: 3,
+                iconName: 'clock-time-four-outline',
+                title: 'No active listings yet',
+                time: 'Create one now',
+            },
+        ];
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={()=> navigation.navigate('VendorProfile')}>
+                <TouchableOpacity onPress={() => navigation.navigate('VendorProfile')}>
                     <View style={styles.headerIconPlaceholder}>
                         <Text style={styles.headerIconText}>V</Text>
                     </View>
                 </TouchableOpacity>
-                <Image source={require('../../assets/images/Logo.png')} style={styles.logo}/>
+                <Image source={require('../../assets/images/Logo.png')} style={styles.logo} />
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     <Icon name="bell-outline" size={22} color="#FFF" />
-                    <TouchableOpacity onPress={()=>navigation.navigate('Setting')}>
-                    <Ionicons name="settings" size={22} color="#FFF" />
+                    <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
+                        <Ionicons name="settings" size={22} color="#FFF" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -128,7 +268,7 @@ const VendorDashboardScreen = () => {
             <View style={styles.dashboardTitleContainer}>
                 <Text style={styles.dashboardTitle}>Vendor Dashboard</Text>
                 <Text style={styles.dashboardSubtitle}>
-                    Your profile is {progress}% complete
+                    Your profile is {profileProgress}% complete
                 </Text>
                 <Text style={styles.dashboardSubtitle}>
                     Complete your profile to boost visibility
@@ -136,22 +276,27 @@ const VendorDashboardScreen = () => {
             </View>
 
             {/* Progress Bar */}
-            <ProgressBar progress={progress} />
+            <ProgressBar progress={profileProgress} />
+
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View>
                     <Text style={styles.sectionTitle}>Quick Actions</Text>
-
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <TouchableOpacity style={styles.btn1} onPress={() => navigation.navigate('CreateListing')}>
+                        <TouchableOpacity 
+                            style={styles.btn1} 
+                            onPress={() => navigation.navigate('CreateListing')}
+                        >
                             <AntDesign name='plus' size={18} color='white' style={{ marginTop: 1 }} />
                             <Text style={styles.btnTxt}>Create New Listing</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.btn2}>
+                        <TouchableOpacity 
+                            style={styles.btn2}
+                            onPress={() => navigation.navigate('VendorProfile')}
+                        >
                             <FontAwesome5 name='pen' size={18} color='white' style={{ marginTop: 1 }} />
                             <Text style={styles.btnTxt}>Edit Profile</Text>
                         </TouchableOpacity>
-
                     </View>
                 </View>
 
@@ -165,32 +310,52 @@ const VendorDashboardScreen = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContainer}
                 >
-                    {/* Active Listings Card */}
-                    <View style={styles.card}>
-                        <View style={styles.users}>
-                            <FontAwesome5 name="list-ul" size={18} color="#51e3fc" />
-                            <Text style={styles.cardTitle}>Active Listings</Text>
-                        </View>
-                        <Text style={styles.cardValue}>12</Text>
-                        <Text style={styles.cardSubText}>Currently live listings</Text>
-                    </View>
+                    {/* Active Scholarships Card */}
+                    <StatCard
+                        icon={<FontAwesome5 name="graduation-cap" size={18} color="#51e3fc" />}
+                        iconColor="#51e3fc"
+                        title="Total Scholarships"
+                        value={stats.scholarships.total}
+                        subText={`${stats.scholarships.live} live, ${stats.scholarships.pending_review} pending`}
+                        subTextColor="#52e3fc"
+                    />
 
                     {/* Pending Applications Card */}
-                    <View style={styles.card}>
-                        <View style={styles.users}>
-                            <MaterialIcons name="pending-actions" size={20} color="#7B61FF" />
-                            <Text style={styles.cardTitle}>Pending Applications</Text>
-                        </View>
-                        <Text style={styles.cardValue}>123</Text>
-                        <Text style={styles.scholarshipText}>Waiting for approval</Text>
-                    </View>
+                    <StatCard
+                        icon={<MaterialIcons name="pending-actions" size={20} color="#7B61FF" />}
+                        iconColor="#7B61FF"
+                        title="Applications"
+                        value={stats.applications.total}
+                        subText={`${stats.applications.pending} pending, ${stats.applications.approved} approved`}
+                        subTextColor="#7B61FF"
+                    />
+
+                    {/* Perks Card */}
+                    <StatCard
+                        icon={<FontAwesome5 name="gift" size={18} color="#FF6B6B" />}
+                        iconColor="#FF6B6B"
+                        title="Active Perks"
+                        value={stats.perks.total}
+                        subText={`${stats.perks.live} live perks`}
+                        subTextColor="#FF6B6B"
+                    />
+
+                    {/* Tuition Assistance Card */}
+                    <StatCard
+                        icon={<FontAwesome5 name="university" size={18} color="#4ECDC4" />}
+                        iconColor="#4ECDC4"
+                        title="Tuition Offers"
+                        value={stats.tuition.total}
+                        subText={`${stats.tuition.live} live offers`}
+                        subTextColor="#4ECDC4"
+                    />
                 </ScrollView>
 
-                {/* Recent Activity Section - UPDATED DESIGN */}
+                {/* Recent Activity Section */}
                 <View style={styles.recentActivityContainer}>
                     <View style={styles.recentActivityHeader}>
                         <Text style={styles.sectionTitle}>Recent Activity</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('ManageListingScreen')}>
                             <Text style={styles.viewAllText}>View All</Text>
                         </TouchableOpacity>
                     </View>
@@ -207,20 +372,23 @@ const VendorDashboardScreen = () => {
                     </View>
                 </View>
 
+                {/* Help Section */}
                 <View style={styles.recentActivityContainer}>
                     <View style={styles.innerNeedCont}>
                         <View style={styles.iconBg}>
                             <FontAwesome5
                                 name='question-circle'
-                                color='white' // This should work
+                                color='white'
                                 size={40}
                                 style={{ top: 15, left: 15 }}
                             />
                         </View>
 
-                        <View style={{ alignItems: 'center', }}>
+                        <View style={{ alignItems: 'center' }}>
                             <Text style={styles.needTitle}>Need Help?</Text>
-                            <Text style={styles.needsubTitle}>Get assistance managing your listing and applications.</Text>
+                            <Text style={styles.needsubTitle}>
+                                Get assistance managing your listing and applications.
+                            </Text>
                         </View>
 
                         <TouchableOpacity style={styles.innerBtn}>
@@ -233,7 +401,11 @@ const VendorDashboardScreen = () => {
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.lastBtn}>
+                {/* Create New Listing Button */}
+                <TouchableOpacity 
+                    style={styles.lastBtn}
+                    onPress={() => navigation.navigate('CreateListing')}
+                >
                     <AntDesign name='plus' size={18} color='white' style={{ marginTop: 1 }} />
                     <Text style={styles.lastBtnTxt}>Create New Listing</Text>
                 </TouchableOpacity>
@@ -244,6 +416,23 @@ const VendorDashboardScreen = () => {
 
 // --- Stylesheet ---
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#000',
+        paddingHorizontal: 15,
+        paddingTop: 10,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#000',
+    },
+    loadingText: {
+        color: '#fff',
+        marginTop: 10,
+        fontSize: 16,
+    },
     logo: {
         width: 80,
         height: 80,
@@ -257,7 +446,7 @@ const styles = StyleSheet.create({
         width: '90%',
         marginLeft: 15,
         borderRadius: 10,
-        marginBottom: 10,
+        marginBottom: 20,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 10,
@@ -297,7 +486,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 3,
         padding: 8,
-        borderRadius: 20
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     btn2: {
         width: '48%',
@@ -307,7 +498,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'white'
+        borderColor: 'white',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     btnTxt: {
         fontSize: 14,
@@ -315,19 +508,10 @@ const styles = StyleSheet.create({
         color: 'white',
         marginTop: 3
     },
-    container: {
-        flex: 1,
-        backgroundColor: '#000',
-        paddingHorizontal: 15,
-        paddingTop: 10,
-    },
-    // Style for the bold text *inside* the card title
     boldText: {
         fontWeight: 'bold',
         color: '#FFFFFF',
     },
-
-    // Header Styles (from original code)
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -358,11 +542,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     dashboardSubtitle: {
-        color: '#FFFFFF', // Adjusted to plain white for consistency
+        color: '#FFFFFF',
         fontSize: 14,
     },
-
-    // Progress Bar Styles (from original code)
     containerLine: {
         width: '100%',
         paddingHorizontal: 5,
@@ -386,8 +568,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#03a2d5',
         borderRadius: 8,
     },
-
-    // Section Title (from original code)
     sectionTitle: {
         color: '#FFF',
         fontSize: 20,
@@ -395,7 +575,6 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
     },
-
     needTitle: {
         color: '#FFF',
         fontSize: 16,
@@ -406,8 +585,8 @@ const styles = StyleSheet.create({
     needsubTitle: {
         color: 'white',
         textAlign: 'center',
+        paddingHorizontal: 20,
     },
-    // Snapshot Cards (from original code)
     scrollContainer: {
         paddingVertical: 4,
     },
@@ -424,6 +603,7 @@ const styles = StyleSheet.create({
         gap: 8,
         paddingBottom: 10,
         width: '100%',
+        alignItems: 'center',
     },
     cardTitle: {
         color: '#fff',
@@ -438,7 +618,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     cardSubText: {
-        color: '#52e3fc',
         fontSize: 12,
         marginTop: 4,
     },
@@ -452,7 +631,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#021e38',
         borderRadius: 20,
         padding: 10,
-
     },
     recentActivityHeader: {
         flexDirection: 'row',
@@ -460,26 +638,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     viewAllText: {
-        color: '#55aaff', // Light blue link color
+        color: '#55aaff',
         fontSize: 16,
         fontWeight: '500',
     },
     activityList: {
-        gap: 12, // Spacing between individual cards
+        gap: 12,
         paddingVertical: 5,
     },
-    cardContainer: { // Style for the individual activity card block
+    cardContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 8,
         paddingVertical: 15,
         paddingHorizontal: 15,
         borderWidth: 1,
-        borderColor: '#ffffffff', // Subtle border color
+        borderColor: '#ffffffff',
     },
     iconWrapper: {
         marginRight: 15,
-        // The icons themselves are white, matching the visual
     },
     textContainer: {
         flex: 1,
@@ -490,7 +667,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     timeText: {
-        color: '#B0B0B0', // Lighter grey for the timestamp
+        color: '#B0B0B0',
         fontSize: 13,
         marginTop: 2,
     },
