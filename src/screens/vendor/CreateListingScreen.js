@@ -190,6 +190,7 @@ const CreateListingScreen = () => {
                 });
             } else if (response.assets && response.assets[0]) {
                 const image = response.assets[0];
+                console.log('image',image.uri)
                 setFormData(prev => ({
                     ...prev,
                     banner_image_url: image.uri,
@@ -319,6 +320,7 @@ const CreateListingScreen = () => {
 
     // Submit Form
     const handleSubmit = async (isDraft = false) => {
+        console.log('handleSubmit run start')
         Keyboard.dismiss();
         
         if (!validateForm(isDraft)) {

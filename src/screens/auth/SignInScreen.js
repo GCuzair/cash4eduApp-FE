@@ -63,7 +63,7 @@ const SignInScreen = ({ navigation }) => {
         password: formData.password,
       };
 
-      const response = await FireApi('login', 'POST', {}, payload);
+      const response = await FireApi('login', 'POST', {}, payload, true);
 
       if (!response) {
         return;

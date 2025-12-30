@@ -2,7 +2,7 @@
 import Toast from 'react-native-toast-message';
 import { Storage } from './Storage';
 
-export const baseURL = "http://192.168.100.48:5000/v1/";
+export const baseURL = "https://cashapp.devocra.com/v1/";
 
 export async function FireApi(
   endpoint,
@@ -58,7 +58,7 @@ export async function FireApi(
       });
       return null;
     }
-    
+    if(result)
     return result;
     
   } catch (error) {

@@ -159,9 +159,12 @@ const SignUpScreen = ({ navigation }) => {
 
       console.log('Sending payload:', requestData);
 
-      const response = await FireApi('create-user', 'POST', {}, requestData);
+      const response = await FireApi('create-user', 'POST', {}, requestData, true);
+     
+      if(!response) return;
 
       if (response && response.success === true) {
+        console.log('response in signup screen ',response)
         Toast.show({
           type: 'success',
           text1: 'Success',
@@ -172,13 +175,14 @@ const SignUpScreen = ({ navigation }) => {
           email: formData.email,
           name: formData.name,
         });
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Sign Up Failed',
-          text2: response?.message || 'Unable to create account',
-        });
-      }
+      };
+      //  else {
+      //   Toast.show({
+      //     type: 'error',
+      //     text1: 'Sign Up Failed',
+      //     text2: response?.message || 'Unable to create account',
+      //   });
+      // }
     } catch (error) {
       console.error('Sign up error:', error);
       Toast.show({
