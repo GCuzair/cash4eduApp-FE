@@ -110,7 +110,7 @@ const VendorDashboardScreen = () => {
     const fetchVendorDashboard = async () => {
         try {
             setLoading(true);
-            const response = await FireApi('vendor/listings','GET');
+            const response = await FireApi('vendor/manage-listings','GET');
             
             if (response && response.success && response.data) {
                 const data = response.data;
