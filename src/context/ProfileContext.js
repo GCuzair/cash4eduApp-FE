@@ -29,10 +29,10 @@ export const ProfileProvider = ({ children }) => {
     checkAndFetchProfile();
     
     // Check every 5 seconds if profile is not loaded
-    if (!userProfile) {
-      const interval = setInterval(checkAndFetchProfile, 5000);
-      return () => clearInterval(interval);
-    }
+    // if (!userProfile) {
+    //   const interval = setInterval(checkAndFetchProfile, 5000);
+    //   return () => clearInterval(interval);
+    // }
   }, [userProfile]);
 
   // Get user profile
