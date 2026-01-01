@@ -16,6 +16,7 @@ export const ProfileProvider = ({ children }) => {
       try {
         const token = await Storage.getToken();
         const user = await Storage.getUser();
+        console.log('user in context',user.user_type)
         
         if (token && user && !userProfile) {
           console.log(' Auto-fetching profile on app start...');
@@ -47,8 +48,7 @@ export const ProfileProvider = ({ children }) => {
         return null;
       }
 
-      
-      const response = await FireApi(`profile/${storedUser.id}`, 'GET');
+      const response = await FireApi(`${storedUser.user_type}/profile`,'GET'); // ${storedUser.id}
       
       if (response && (response.data || response.success)) {
         const profileData = response.data || response;
