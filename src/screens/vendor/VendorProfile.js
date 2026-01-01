@@ -6,14 +6,18 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Dimensions,                                                                                                                           
+  Dimensions,
   Alert,
+  TextInput,
+  Modal,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MatIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
 import { ProfileContext } from '../../context/ProfileContext';
 import { RefreshControl } from 'react-native-gesture-handler';
+import { FireApi } from '../../utils/FireApi';
 
 const { width } = Dimensions.get('window');
 
@@ -33,8 +37,28 @@ const InfoSection = ({ title, children, showEdit = true, onEdit }) => (
 );
 
 const VendorProfileScreen = ({ navigation }) => {
-  const { userProfile, userInfo, refreshUserProfile } = useContext(ProfileContext);
+  const [activeModal, setActiveModal] = useState(null);
+  const [contactModalVisible, setContactModalVisible] = useState(false);
+  const [descModalVisible, setDescModalVisible] = useState(false);
+  const [socialModalVisible, setSocialModalVisible] = useState(false);
+
+  const { userProfile, userInfo, refreshUserProfile } =
+    useContext(ProfileContext);
   const [loading, setLoading] = useState(false);
+  
+  // BUSINESS
+  const [businessName, setBusinessName] = useState('');
+  // CONTACT
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
+  // DESCRIPTION
+  const [description, setDescription] = useState('');
+  // SOCIAL LINKS
+  const [facebook, setFacebook] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [twitter, setTwitter] = useState('');
 
   // Function to handle profile refresh
   const handleRefresh = async () => {
@@ -53,7 +77,7 @@ const VendorProfileScreen = ({ navigation }) => {
   };
 
   // Get initials for avatar
-  const getInitials = (name) => {
+  const getInitials = name => {
     if (!name) return 'U';
     return name
       .split(' ')
@@ -73,12 +97,17 @@ const VendorProfileScreen = ({ navigation }) => {
         email: userInfo.email || 'Email not available',
         phone: userInfo.phone || 'Phone not available',
         // Profile specific data
-        businessName: userInfo.current_school_name || userInfo.full_name || 'Business Name',
+        businessName:
+          userInfo.current_school_name || userInfo.full_name || 'Business Name',
         isVerified: userInfo.is_verified || false,
-        motto: userInfo.education_journey_description || userInfo.bio || 'No description available',
-        description: userInfo.education_journey_description || 
-                    userInfo.about || 
-                    'No description available',
+        motto:
+          userInfo.education_journey_description ||
+          userInfo.bio ||
+          'No description available',
+        description:
+          userInfo.education_journey_description ||
+          userInfo.about ||
+          'No description available',
         // From userProfile API
         zipCode: userInfo.zip_code || 'Not provided',
         state: userInfo.state_of_residence || 'Not provided',
@@ -100,10 +129,14 @@ const VendorProfileScreen = ({ navigation }) => {
         fullName: userProfile.current_school_name || 'User',
         email: userProfile.email || 'Email not available',
         phone: userProfile.phone || 'Phone not available',
-        businessName: userProfile.current_school_name || 'Business Name',
+        businessName: userProfile.business_name || 'Business Name',
         isVerified: userProfile.is_verified || false,
-        motto: userProfile.education_journey_description || 'No description available',
-        description: userProfile.education_journey_description || 'No description available',
+        motto:
+          userProfile.education_journey_description ||
+          'No description available',
+        description:
+          userProfile.education_journey_description || userProfile.description ||
+          'No description available',
         zipCode: userProfile.zip_code || 'Not provided',
         state: userProfile.state_of_residence || 'Not provided',
         gpa: userProfile.cumulative_gpa || 'Not provided',
@@ -119,18 +152,18 @@ const VendorProfileScreen = ({ navigation }) => {
     // Default fallback only when no data available
     return {
       fullName: 'Loading...',
-      email: 'Loading...',
-      phone: 'Loading...',
-      businessName: 'Loading...',
+      email: email || 'Loading...',
+      phone: phone || 'Loading...',
+      businessName: businessName || 'Loading...',
       isVerified: false,
       motto: 'Loading...',
-      description: 'Loading...',
+      description: description || 'Loading...',
       zipCode: 'Loading...',
       state: 'Loading...',
       gpa: 'Loading...',
       graduationDate: 'Loading...',
       workStatus: 'Loading...',
-      website: 'Loading...',
+      website: website || 'Loading...',
       profileCompletion: 0,
       currentPlan: 'Loading...',
       renewalDate: 'Loading...',
@@ -138,6 +171,86 @@ const VendorProfileScreen = ({ navigation }) => {
   };
 
   const profileData = getProfileData();
+
+  useEffect(() => {
+  if (!profileData) return;
+
+  // Only set initial values once
+  setBusinessName(profileData?.businessName || '');
+  setPhone(profileData?.phone || '');
+  setEmail(profileData?.email || '');
+  setWebsite(profileData?.website || '');
+  setDescription(profileData?.description || '');
+
+  setFacebook(profileData?.social_links?.facebook || '');
+  setInstagram(profileData?.social_links?.instagram || '');
+  setLinkedin(profileData?.social_links?.linkedin || '');
+  setTwitter(profileData?.social_links?.twitter || '');
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []); 
+
+// {
+//   "business_name": "string",
+//   "logo_base64": "string",
+//   "phone": "string",
+//   "email": "user@example.com",
+//   "website": "string",
+//   "description": "string",
+//   "social_links": {
+//     "facebook": "string",
+//     "instagram": "string",
+//     "linkedin": "string",
+//     "twitter": "string"
+//   }
+// }
+
+const handleSubmit = async () => {
+  const payload = {
+    business_name : businessName,
+    logo_base64 : '',
+    phone : phone,
+    email : email,
+    website : website || '',
+    description : description,
+    social_links: {
+     facebook: facebook || "",
+     instagram: instagram || "" ,
+    linkedin: linkedin || "" , 
+    twitter: twitter || ""
+  }
+
+  }
+  console.log('payload on submit',payload);
+
+  
+  try {
+    setLoading(true);
+    const response = await FireApi(
+      'vendor/profile',   // ✅ correct endpoint
+      'POST',             // ✅ POST method
+      {},                 // options (headers optional)
+      payload             // ✅ body
+    );
+
+    if (response || response?.success) {
+      console.log('Profile updated successfully', response);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Updated',
+        text2: 'Your profile has been saved successfully',
+      });
+
+      // optional: refresh profile context
+      refreshUserProfile(true);
+    }
+  } catch (error) {
+    console.log('Submit profile error', error);
+  } finally {
+    setLoading(false);
+  }
+}
 
   return (
     <ScrollView
@@ -207,53 +320,142 @@ const VendorProfileScreen = ({ navigation }) => {
         </Text>
       </View>
 
-      {/* 3. Business Information */}
+      {/* {/* 3. Business Information */}
       <InfoSection
         title="Business Information"
-        onEdit={() => handleEdit('Business Information')}
+        onEdit={() => setActiveModal('business')}
       >
         <Text style={styles.infoDetail}>
           Business Name: {profileData.businessName}
         </Text>
-        <Text style={styles.infoDetail}>
-          State: {profileData.state}
-        </Text>
-        <Text style={styles.infoDetail}>
-          Zip Code: {profileData.zipCode}
-        </Text>
       </InfoSection>
+
+      <Modal
+        visible={activeModal === 'business'}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Edit Business Information</Text>
+
+            <TextInput
+              placeholder="Business Name"
+              placeholderTextColor="#94A3B8"
+              value={businessName}
+              onChangeText={setBusinessName}
+              style={styles.modalInput}
+            />
+
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setActiveModal(null)}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* 4. Contact Info */}
       <InfoSection
         title="Contact Info"
-        onEdit={() => handleEdit('Contact Info')}
+        onEdit={() => setContactModalVisible(true)}
       >
         <Text style={styles.infoDetail}>
           <Icon name="call-outline" size={14} color="#A0AEC0" /> Phone:{' '}
+          {/* profileData?.businessName && profileData.businessName !== 'Loading...' ? profileData.businessName : businessName */}
           {profileData.phone}
         </Text>
-        
+
         <Text style={styles.infoDetail}>
           <Icon name="mail-outline" size={14} color="#A0AEC0" /> Email:{' '}
           {profileData.email}
         </Text>
-        
+
         <Text style={styles.infoDetail}>
           <Icon name="globe-outline" size={14} color="#A0AEC0" /> Website:{' '}
           {profileData.website}
         </Text>
       </InfoSection>
 
+      <Modal visible={contactModalVisible} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Contact Information</Text>
+            <Text style={{}}>Phone</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Phone"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+            />
+            <Text style={{}}>Email</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <Text style={{}}>Website</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Website"
+              value={website}
+              onChangeText={setWebsite}
+              autoCapitalize="none"
+            />
+
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setContactModalVisible(false)}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* 5. Description / About Us */}
       <InfoSection
         title="Description / About Us"
-        onEdit={() => handleEdit('Description')}
+        onEdit={() => setDescModalVisible(true)}
       >
         <Text style={styles.descriptionText}>{profileData.description}</Text>
       </InfoSection>
 
+      <Modal
+        visible={descModalVisible}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Description / About Us</Text>
+
+            <TextInput
+              placeholder="Description"
+              placeholderTextColor="#94A3B8"
+              value={description}
+              onChangeText={setDescription}
+              style={styles.modalInput}
+            />
+
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setDescModalVisible(false)}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* 6. Academic Information */}
-      <InfoSection
+      {/* <InfoSection
         title="Academic Information"
         onEdit={() => handleEdit('Academic Information')}
       >
@@ -264,12 +466,12 @@ const VendorProfileScreen = ({ navigation }) => {
         <Text style={styles.infoDetail}>
           Work Status: {profileData.workStatus}
         </Text>
-      </InfoSection>
+      </InfoSection> */}
 
       {/* 7. Social Links */}
       <InfoSection
         title="Social Links"
-        onEdit={() => handleEdit('Social Links')}
+        onEdit={() => setSocialModalVisible(true)}
       >
         <View style={styles.socialIcons}>
           <TouchableOpacity style={styles.socialButton}>
@@ -302,6 +504,56 @@ const VendorProfileScreen = ({ navigation }) => {
         </View>
       </InfoSection>
 
+     <Modal visible={socialModalVisible} transparent animationType="fade">
+        <View style={styles.overlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Contact Information</Text>
+            <Text style={{}}>Facebook</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Facebook"
+              value={facebook}
+              onChangeText={setFacebook}
+              keyboardType="email-address"
+            />
+            <Text style={{}}>Instagram</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Instagram"
+              value={instagram}
+              onChangeText={setInstagram}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <Text style={{}}>LinkedIn</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="LinkedIn"
+              value={linkedin}
+              onChangeText={setLinkedin}
+              autoCapitalize="none"
+            />
+
+            <Text style={{}}>twitter</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="twitter"
+              value={twitter}
+              onChangeText={setTwitter}
+              autoCapitalize="none"
+            />
+
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setSocialModalVisible(false)}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
       {/* 8. Subscription / Plan Info */}
       <View style={styles.subscriptionSection}>
         <View style={styles.infoHeader}>
@@ -321,7 +573,8 @@ const VendorProfileScreen = ({ navigation }) => {
           </Text>
         </View>
         <View style={styles.upgradeRow}>
-          <TouchableOpacity style={styles.upgradeButton}>
+          <TouchableOpacity style={styles.upgradeButton} 
+           onPress={handleSubmit}>
             <Text style={styles.upgradeText}>Upgrade Plan</Text>
           </TouchableOpacity>
           <View style={styles.upgradeHint}>
@@ -334,10 +587,7 @@ const VendorProfileScreen = ({ navigation }) => {
       </View>
 
       {/* Refresh Button */}
-      <TouchableOpacity 
-        style={styles.refreshButton} 
-        onPress={handleRefresh}
-      >
+      <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
         <Icon name="refresh" size={20} color="#00BFFF" />
         <Text style={styles.refreshText}>Refresh Profile</Text>
       </TouchableOpacity>
@@ -470,12 +720,12 @@ const styles = StyleSheet.create({
   },
 
   // --- Info Sections ---
-  infoSection: {
-    backgroundColor: '#021e38',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-  },
+  // infoSection: {
+  //   backgroundColor: '#021e38',
+  //   borderRadius: 10,
+  //   padding: 15,
+  //   marginBottom: 15,
+  // },
   infoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -488,16 +738,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   infoContent: {},
-  infoDetail: {
-    color: '#A0AEC0',
-    fontSize: 14,
-    lineHeight: 24,
-  },
-  descriptionText: {
-    color: '#A0AEC0',
-    fontSize: 14,
-    lineHeight: 20,
-  },
+  // infoDetail: {
+  //   color: '#A0AEC0',
+  //   fontSize: 14,
+  //   lineHeight: 24,
+  // },
+  // descriptionText: {
+  //   color: '#A0AEC0',
+  //   fontSize: 14,
+  //   lineHeight: 20,
+  // },
   socialIcons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -583,6 +833,106 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#00BFFF',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#fff',
+    fontSize: 15,
+    marginTop: 8,
+    marginBottom: 12,
+    backgroundColor: '#0F172A', // dark background
+  },
+
+  /* ========= Info Text ========= */
+  infoDetail: {
+    fontSize: 14,
+    color: '#E2E8F0',
+    marginBottom: 6,
+  },
+
+  /* ========= Description Text ========= */
+  descriptionText: {
+    fontSize: 14,
+    color: '#CBD5E1',
+    lineHeight: 20,
+    marginTop: 6,
+  },
+
+  /* ========= Section Container (optional helper) ========= */
+  infoSection: {
+    backgroundColor: '#020617',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+  },
+
+  /* ========= Edit Row ========= */
+  editRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  /* ========= Label ========= */
+  label: {
+    fontSize: 13,
+    color: '#94A3B8',
+    marginBottom: 4,
+  },
+
+  /* ========= Social Row ========= */
+  socialRow: {
+    marginBottom: 10,
+  },
+  overlay: {
+    flex: 1, // full screen cover
+    backgroundColor: 'rgba(0,0,0,0.65)', // dark background
+    justifyContent: 'center', // center vertically
+    alignItems: 'center', // center horizontally
+  },
+  modalBox: {
+    width: '88%', // thoda margin side se
+    backgroundColor: '#fff',    // dark card
+    borderRadius: 18, // smooth corners
+    padding: 20,
+    elevation: 8, // Android shadow
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 16,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#00BFFF',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#FFFFFF',
+    backgroundColor: '#0F172A',
+  },
+  okButton: {
+    marginTop: 22,
+    backgroundColor: '#00BFFF',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  okText: {
+    color: '#020617',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  infoText: {
+    color: '#E2E8F0',
+    fontSize: 14,
   },
 });
 
