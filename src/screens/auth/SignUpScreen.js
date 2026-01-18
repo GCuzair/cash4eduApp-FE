@@ -14,7 +14,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import { FireApi } from '../../utils/FireApi';
+// import { FireApi } from '../../utils/FireApi';
+import { handleApiError } from '../../utils/errorHandler';
+import { createUser } from '../../api/public/auth.api';
 
 const SignUpScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -159,12 +161,12 @@ const SignUpScreen = ({ navigation }) => {
 
       console.log('Sending payload:', requestData);
 
-      const response = await FireApi('create-user', 'POST', {}, requestData, true);
-     
-      if(!response) return;
+      const response = await createUser(requestData);
+
+      if (!response) return;
 
       if (response && response.success === true) {
-        console.log('response in signup screen ',response)
+        console.log('response in signup screen ', response)
         Toast.show({
           type: 'success',
           text1: 'Success',
@@ -184,11 +186,12 @@ const SignUpScreen = ({ navigation }) => {
       //   });
       // }
     } catch (error) {
-      console.error('Sign up error:', error);
+      // console.error('Sign up error:', error);
+      const message = handleApiError(error);
       Toast.show({
         type: 'error',
-        text1: 'Network Error',
-        text2: 'Please check your connection and try again',
+        text1: 'Server Error',
+        text2: message,
       });
     } finally {
       setLoading(false);

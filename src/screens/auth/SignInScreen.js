@@ -17,7 +17,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { FireApi } from '../../utils/FireApi';
-import { Storage } from '../../utils/Storage';
+// import { Storage } from '../../utils/Storage';
+import { login } from '../../api/public/auth.api';
+import { handleApiError } from '../../utils/errorHandler';
+import { setToken, setUser, setUserWallet } from '../../services/token.service';
 
 const SignInScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -62,75 +65,85 @@ const SignInScreen = ({ navigation }) => {
         email: formData.email,
         password: formData.password,
       };
+      const response = await login(payload);
 
-      const response = await FireApi('login', 'POST', {}, payload, true);
+      console.log('response', response)
+
+
+      // return
 
       if (!response) {
         return;
       }
 
       // Check if response has success property
-      if (response && response.success === true) {
-        if (response?.token) {
-          await Storage.setToken(response.token);
+      if (response && response.data.success === true) {
+        if (response.data.token) {
+          await setToken(response.data.token);
         }
 
-        if (response?.user) {
-          await Storage.setUser(response.user);
+        if (response?.data.user) {
+          await setUser(response.data.user);
+        }
+
+        if (response?.data.wallet) {
+          await setUserWallet(response.data.wallet);
         }
 
         // Login successful
         Toast.show({
           type: 'success',
           text1: 'Welcome!',
-          text2: response.message || 'Login successful',
+          text2: response.data.message || 'Login successful',
         });
 
         // IMPORTANT: First navigate to a dummy screen then reset
         // This is a workaround for React Navigation issue
-        
-        const userType = response.user?.user_type;
+
+        const userType = response.data.user?.user_type;
         let targetScreen = 'SignIn'; // default fallback
-        
-        if (userType === 'admin') {
-          targetScreen = 'AdminDashboard';
-        } else if (userType === 'vendor') {
-          // Check if vendor has profile
-          if (response.user?.has_profile) {
-            targetScreen = 'VendorDashboard';
-          } else {
-            targetScreen = 'VendorDashboard'; // or 'VendorSetup' if you have this screen
-          }
-        } else if (userType === 'student') {
-          // Check if student has completed profile
-          if (response.user?.has_profile && response.user?.has_profile === true) {
-            targetScreen = 'MainTabs';
-          } else {
-            // Redirect to profile completion
-            targetScreen = 'PersonalIdentity';
-          }
+
+        switch (userType) {
+          case 'admin':
+            targetScreen = 'AdminDashboard';
+            break;
+          case 'vendor':
+            // TODO here VendorDashboard screen same like student profile check
+            targetScreen = response.data.user?.is_verified ? 'VendorDashboard' : 'VendorDashboard';
+            break;
+          case 'student':
+            targetScreen = response.data.user?.is_verified ? 'MainTabs' : 'PersonalIdentity';
+            break;
+          default:
+            break;
         }
-        
+
+        console.log('targetScreen', targetScreen)
+
         // RESET the navigation stack
         navigation.reset({
           index: 0,
           routes: [{ name: targetScreen }],
         });
-        
+
       } else {
         // Login failed
         Toast.show({
           type: 'error',
           text1: 'Login Failed',
-          text2: response?.message || 'Invalid email or password',
+          text2: response?.data.message || 'Invalid email or password',
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
+      // console.error('Login error:', error.message);
+      // console.error('Login error:', error.request);
+      // console.error('Login error:', error.response);
+      const message = handleApiError(error);
+      console.log('message', message)
       Toast.show({
         type: 'error',
-        text1: 'Error',
-        text2: 'Network error. Please try again.',
+        text1: 'Server Error',
+        text2: message,
       });
     } finally {
       setLoading(false);

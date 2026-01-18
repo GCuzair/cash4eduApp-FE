@@ -13,7 +13,9 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
-import { FireApi } from '../../utils/FireApi';
+// import { FireApi } from '../../utils/FireApi';
+import { handleApiError } from '../../utils/errorHandler';
+import { verifyEmail } from '../../api/public/auth.api';
 
 const EmailVerificationScreen = ({ navigation, route }) => {
   const { email, fullName } = route.params || {};
@@ -61,37 +63,48 @@ const EmailVerificationScreen = ({ navigation, route }) => {
       return;
     }
 
-    const payload = {
-      email: email,
-      otp: code,
-    };
+    try {
+      const payload = {
+        email: email,
+        otp: code,
+      };
 
-    const response = await FireApi('verify-email', 'POST', {}, payload);
+      const response = await verifyEmail(payload);
 
-    if (!response) {
+      if (!response) {
+        Toast.show({
+          type: 'error',
+          text1: response.message || 'Verification Failed',
+        });
+        return;
+      }
+
+      if (response.success === true) {
+        Toast.show({
+          type: 'success',
+          text1: response.message || 'Email Verified 🎉',
+        });
+
+        navigation.replace('MainTabs');
+
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Verification Failed',
+          text2: response.message || 'Invalid OTP. Try again.',
+        });
+        return;
+      }
+    } catch (error) {
+      const message = handleApiError(error);
       Toast.show({
         type: 'error',
-        text1: response.message || 'Verification Failed',
+        text1: 'Server Error',
+        text2: message,
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    // If backend returns success = false or status code not ok
-    if (!response.success) {
-      Toast.show({
-        type: 'error',
-        text1: 'Verification Failed',
-        text2: response.message || 'Invalid OTP. Try again.',
-      });
-      return;
-    }
-
-    Toast.show({
-      type: 'success',
-      text1: response.message || 'Email Verified 🎉',
-    });
-
-    navigation.replace('MainTabs');
   };
 
   return (
